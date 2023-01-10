@@ -9,12 +9,22 @@ class MyApp extends StatelessWidget {
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
+    var themeData = ThemeData(
+        brightness: Brightness.dark,        
+      );
     return MaterialApp(
-      title: "Find'nMe",
-      theme: ThemeData(        
-        primarySwatch: Colors.blue,
+      title: "Find'nMe",     
+      theme: ThemeData(  
+        brightness: Brightness.light,        
       ),
+      darkTheme: themeData,
+      themeMode: ThemeMode.dark, 
+      /* ThemeMode.system to follow system theme, 
+         ThemeMode.light for light theme, 
+         ThemeMode.dark for dark theme
+      */
+      debugShowCheckedModeBanner: false,       
       home: const MyHomePage(title: "Find'nMe"),
     );
   }
