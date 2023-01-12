@@ -5,7 +5,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black87,
+      color: VisualIdColors.colorBlue(),
       child: Column(
         children: [
           Container(
@@ -13,7 +13,6 @@ class MainDrawer extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(top: 50.0, left: 20.0),
               child: Column(
-                //mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
@@ -21,7 +20,7 @@ class MainDrawer extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 25.0,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white70,
+                      color: Colors.white,
                     ),
                     //textAlign: TextAlign.left,
                   ),

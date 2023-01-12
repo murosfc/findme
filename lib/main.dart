@@ -1,5 +1,6 @@
-import 'package:findme/MainDrawer.dart';
+import 'package:findme/drawers/MainDrawer.dart';
 import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/drawers/SearchBar.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -33,11 +34,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
     });
   }
@@ -50,10 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
         actions: [
           IconButton(
+            icon: const Icon(Icons.search),
             onPressed: () {
-              //procurar
+              showSearch(context: context, delegate: SearchBar());
             },
-            icon: Icon(Icons.search),
           ),
         ],
       ),
@@ -74,12 +70,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
