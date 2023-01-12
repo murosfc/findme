@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         primarySwatch: VisualIdColors.colorBlue(),
-        scaffoldBackgroundColor: Color(0xFF121212),
+        scaffoldBackgroundColor: const Color(0xFF121212),
       ),
+      supportedLocales: L10n.all,
       home: const MyHomePage(title: "Find'nMe"),
       debugShowCheckedModeBanner: false,
     );
