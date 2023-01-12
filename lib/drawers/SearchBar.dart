@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 
 class SearchBar extends SearchDelegate {
   List<String> searchResults = [
@@ -53,7 +54,7 @@ class SearchBar extends SearchDelegate {
   }
 
   @override
-  String get searchFieldLabel => 'Pesquisar...';
+  String get searchFieldLabel => 'search-hint'.i18n();
 
   @override
   ThemeData appBarTheme(BuildContext context) {
