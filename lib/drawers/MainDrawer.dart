@@ -1,16 +1,17 @@
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
 
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: VisualIdColors.colorBlue(),
+      color: VisualIdColors.colorGreen(),
       child: Column(
         children: [
           Container(
-            color: VisualIdColors.colorBlue(),
+            color: VisualIdColors.colorGreen(),
             child: Padding(
               padding: const EdgeInsets.only(top: 50.0, left: 20.0),
               child: Column(
@@ -38,8 +39,8 @@ class MainDrawer extends StatelessWidget {
               Icons.add,
               color: Colors.white70,
             ),
-            title: const Text("Adicionar contato",
-                style: TextStyle(color: Colors.white70)),
+            title: Text("add-contact".i18n(),
+                style: const TextStyle(color: Colors.white70)),
           ),
           ListTile(
             onTap: () {},
@@ -47,8 +48,8 @@ class MainDrawer extends StatelessWidget {
               Icons.star_border,
               color: Colors.white70,
             ),
-            title: const Text("Gerenciar favoritos",
-                style: TextStyle(color: Colors.white70)),
+            title: Text("man-fav".i18n(),
+                style: const TextStyle(color: Colors.white70)),
           ),
           ListTile(
             onTap: () {},
@@ -56,8 +57,8 @@ class MainDrawer extends StatelessWidget {
               Icons.lock,
               color: Colors.white70,
             ),
-            title: const Text("Permissões",
-                style: TextStyle(color: Colors.white70)),
+            title: Text("permissions".i18n(),
+                style: const TextStyle(color: Colors.white70)),
           ),
           ListTile(
             onTap: () {},
@@ -65,8 +66,8 @@ class MainDrawer extends StatelessWidget {
               Icons.settings,
               color: Colors.white70,
             ),
-            title: const Text("Configurações",
-                style: TextStyle(color: Colors.white70)),
+            title: Text("config".i18n(),
+                style: const TextStyle(color: Colors.white70)),
           ),
         ],
       ),

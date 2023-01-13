@@ -1,3 +1,7 @@
 {
-    "search-hint": "Pesquisar..."
+    "search-hint": "Pesquisar...",
+    "add-contact": "Adicionar novo contato",
+    "man-fav": "Gerenciar favoritos",
+    "permissions": "Permissões",
+    "config": "Configurações"
 }
