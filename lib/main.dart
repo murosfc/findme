@@ -2,6 +2,7 @@ import 'package:findme/FindnMeHome.dart';
 import 'package:findme/drawers/MainDrawer.dart';
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/drawers/SearchBar.dart';
+import 'package:findme/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
@@ -22,13 +23,13 @@ class MyApp extends StatelessWidget {
       ],
       theme: ThemeData(
         primarySwatch: VisualIdColors.colorGreen(),
-        scaffoldBackgroundColor: const Color(0xFF121212),
+        scaffoldBackgroundColor: Color.fromRGBO(18, 18, 18, 1),
       ),
       supportedLocales: const [
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
-      home: FindnMeHome(),
+      home: LoginPage(), //FindnMeHome(),
       debugShowCheckedModeBanner: false,
     );
   }

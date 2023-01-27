@@ -3,5 +3,11 @@
     "add-contact": "Add new contact",
     "man-fav": "Manage favorites",
     "permissions": "Permissions",
-    "config": "Configurations"
+    "config": "Configurations",
+    "email": "e-mail",
+    "password": "password",
+    "valid-email": "Please enter a valid email",
+    "valid-password": "Password must be at least 6 characters",
+    "google-log": "Login with Google",
+    "register": "Register"
 }
