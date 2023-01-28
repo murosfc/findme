@@ -4,10 +4,16 @@
     "man-fav": "Manage favorites",
     "permissions": "Permissions",
     "config": "Configurations",
+    "name": "name",
     "email": "e-mail",
     "password": "password",
     "valid-email": "Please enter a valid email",
     "valid-password": "Password must be at least 6 characters",
     "google-log": "Login with Google",
-    "register": "Register"
+    "register": "Register",
+    "enter-name": "Please enter your name",
+    "enter-email": "Please enter your e-mail",
+    "enter-password": "Please enter a password",
+    "reenter-password": "Re-enter Password",
+    "pass-not-match": "Passwords do not match"
 }

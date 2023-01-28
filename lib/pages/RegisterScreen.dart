@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -13,52 +14,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register'),
+        title: Text("register".i18n()),
       ),
       body: Form(
         key: _formKey,
         child: Column(
           children: <Widget>[
             TextFormField(
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(
+                  labelText: "name".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70)),
               validator: (value) {
                 if (value!.isEmpty) {
-                  return 'Please enter your name';
+                  return "enter-name".i18n();
                 }
                 return null;
               },
               onSaved: (value) => _name = value!,
             ),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                  labelText: 'email'.i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70)),
               validator: (value) {
                 if (value!.isEmpty) {
-                  return 'Please enter your email';
+                  return "enter-email".i18n();
                 }
                 return null;
               },
               onSaved: (value) => _email = value!,
             ),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                  labelText: "password".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70)),
               obscureText: true,
               validator: (value) {
                 if (value!.isEmpty) {
-                  return 'Please enter your password';
+                  return "enter-password".i18n();
                 }
                 return null;
               },
               onSaved: (value) => _password = value!,
             ),
             TextFormField(
-              decoration: InputDecoration(labelText: 'Re-enter Password'),
+              decoration: InputDecoration(
+                  labelText: "reenter-password".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70)),
               obscureText: true,
               validator: (value) {
                 if (value!.isEmpty) {
-                  return 'Please re-enter your password';
+                  return "reenter-password".i18n();
                 }
                 if (value != _password) {
-                  return 'Passwords do not match';
+                  return "pass-not-match".i18n();
                 }
                 return null;
               },
@@ -68,10 +77,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
-                  // Save the user's information and navigate to the next screen
+                  //TODO: Save the user's information and navigate to the next screen
                 }
               },
-              child: Text('Register'),
+              child: Text("register".i18n()),
             ),
           ],
         ),

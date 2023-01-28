@@ -4,10 +4,17 @@
     "man-fav": "Gerenciar favoritos",
     "permissions": "Permissões",
     "config": "Configurações",
+    "name": "nome",
     "email": "e-mail",
     "password": "senha",
     "valid-email": "Por favor, digite um e-mail válido",
     "valid-password": "A senha precisa conter ao menos 6 caracteres",
     "google-log": "Login com Google",
-    "register": "Registrar"
+    "register": "Registrar",
+    "enter-name": "Digite seu nome",
+    "enter-email": "Digite seu e-mail",
+    "enter-password": "Digite uma senha",
+    "reenter-password": "Digite novamente a senha",
+    "pass-not-match": "As senhas digitadas precisam ser iguais"
+
 }
