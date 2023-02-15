@@ -18,5 +18,6 @@
     "reenter-password": "Digite novamente a senha",
     "pass-not-match": "As senhas digitadas precisam ser iguais",
     "email-in-use": "O e-mail informado já está em uso.\n Você pode tentar fazer login ou registrar com outro e-mail",
-    "unknow-error": "Erro desconhecido"
+    "unknow-error": "Erro desconhecido",
+    "invalid-credentials": "E-mail ou senha inválidos"
 }

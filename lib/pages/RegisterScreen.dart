@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:localization/localization.dart';
 import 'package:http/http.dart' as http;
 
+import '../colors/VisualIdColors.dart';
 import 'LoginPage.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -129,7 +130,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (_errorMessage != null)
               Text(
                 _errorMessage!,
-                style: TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
               )
           ],
         ),
@@ -152,7 +153,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       Response response = await http.post(
-          Uri.parse(ApiUrls().getRegistrationUrl()),
+          Uri.parse(ApiUrls().registrationUrl()),
           headers: {'Content-Type': 'application/json'},
           body: bodyJson);
 

@@ -9,7 +9,7 @@
     "email": "e-mail",
     "password": "password",
     "valid-email": "Please enter a valid email",
-    "valid-password": "Password must be at least 6 characters",
+    "valid-password": "Password must be at least 8 characters",
     "google-log": "Login with Google",
     "register": "Register",
     "enter-name": "Please enter your name",
@@ -18,5 +18,6 @@
     "reenter-password": "Re-enter Password",
     "pass-not-match": "Passwords do not match",
     "email-in-use": "The e-mail informed is already in use.\n You can try to login or register informing a different e-mail",
-    "unknow-error": "Unknow error"
+    "unknow-error": "Unknow error",
+    "invalid-credentials": "Invalid e-mail or password"
 }
