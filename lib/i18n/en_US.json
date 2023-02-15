@@ -5,6 +5,7 @@
     "permissions": "Permissions",
     "config": "Configurations",
     "name": "name",
+    "surname": "last name",
     "email": "e-mail",
     "password": "password",
     "valid-email": "Please enter a valid email",
@@ -15,5 +16,7 @@
     "enter-email": "Please enter your e-mail",
     "enter-password": "Please enter a password",
     "reenter-password": "Re-enter Password",
-    "pass-not-match": "Passwords do not match"
+    "pass-not-match": "Passwords do not match",
+    "email-in-use": "The e-mail informed is already in use.\n You can try to login or register informing a different e-mail",
+    "unknow-error": "Unknow error"
 }

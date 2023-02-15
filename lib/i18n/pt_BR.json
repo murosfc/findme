@@ -5,6 +5,7 @@
     "permissions": "Permissões",
     "config": "Configurações",
     "name": "nome",
+    "surname": "sobrenome",
     "email": "e-mail",
     "password": "senha",
     "valid-email": "Por favor, digite um e-mail válido",
@@ -15,6 +16,7 @@
     "enter-email": "Digite seu e-mail",
     "enter-password": "Digite uma senha",
     "reenter-password": "Digite novamente a senha",
-    "pass-not-match": "As senhas digitadas precisam ser iguais"
-
+    "pass-not-match": "As senhas digitadas precisam ser iguais",
+    "email-in-use": "O e-mail informado já está em uso.\n Você pode tentar fazer login ou registrar com outro e-mail",
+    "unknow-error": "Erro desconhecido"
 }

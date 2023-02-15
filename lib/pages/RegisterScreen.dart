@@ -1,5 +1,12 @@
+import 'dart:convert';
+
+import 'package:findme/api/ApiUrls.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:localization/localization.dart';
+import 'package:http/http.dart' as http;
+
+import 'LoginPage.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -8,7 +15,13 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _email, _password, _reenterPassword;
+  late String _name, _familyName, _email, _password, _reenterPassword;
+  bool _isLoading = false,
+      _obscurePassword = true,
+      _obscureReenterPassword = true;
+  String? _errorMessage;
+  final _emailTextEditingController = TextEditingController();
+  final _passwordTextEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +47,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             TextFormField(
               decoration: InputDecoration(
+                  labelText: "surname".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70)),
+              onSaved: (value) => _familyName = value!,
+            ),
+            TextFormField(
+              controller: _emailTextEditingController,
+              decoration: InputDecoration(
                   labelText: 'email'.i18n(),
                   labelStyle: const TextStyle(color: Colors.white70)),
               validator: (value) {
@@ -45,23 +65,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
               onSaved: (value) => _email = value!,
             ),
             TextFormField(
+              controller: _passwordTextEditingController,
               decoration: InputDecoration(
-                  labelText: "password".i18n(),
-                  labelStyle: const TextStyle(color: Colors.white70)),
-              obscureText: true,
+                labelText: "password".i18n(),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                  icon: Icon(_obscurePassword
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                ),
+              ),
+              obscureText: _obscurePassword,
               validator: (value) {
                 if (value!.isEmpty) {
-                  return "enter-password".i18n();
+                  return "reenter-password".i18n();
                 }
                 return null;
               },
               onSaved: (value) => _password = value!,
             ),
             TextFormField(
+              controller: _passwordTextEditingController,
               decoration: InputDecoration(
-                  labelText: "reenter-password".i18n(),
-                  labelStyle: const TextStyle(color: Colors.white70)),
-              obscureText: true,
+                labelText: "reenter-password".i18n(),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _obscureReenterPassword = !_obscureReenterPassword;
+                    });
+                  },
+                  icon: Icon(_obscureReenterPassword
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                ),
+              ),
+              obscureText: _obscureReenterPassword,
               validator: (value) {
                 if (value!.isEmpty) {
                   return "reenter-password".i18n();
@@ -73,18 +115,74 @@ class _RegisterScreenState extends State<RegisterScreen> {
               },
               onSaved: (value) => _reenterPassword = value!,
             ),
-            MaterialButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  //TODO: Save the user's information and navigate to the next screen
-                }
-              },
-              child: Text("register".i18n()),
-            ),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : MaterialButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        _submit();
+                      }
+                    },
+                    child: Text("register".i18n()),
+                  ),
+            if (_errorMessage != null)
+              Text(
+                _errorMessage!,
+                style: TextStyle(color: Colors.red),
+              )
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _submit() async {
+    setState(() {
+      _isLoading = true; // set isLoading state to true
+    });
+
+    Map<String, String> body = {
+      'name': _name,
+      'familyName': _familyName,
+      'email': _email,
+      'password': _password,
+    };
+    String bodyJson = json.encode(body);
+
+    try {
+      Response response = await http.post(
+          Uri.parse(ApiUrls().getRegistrationUrl()),
+          headers: {'Content-Type': 'application/json'},
+          body: bodyJson);
+
+      if (response.statusCode == 200) {
+        // ignore: use_build_context_synchronously
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else if (response.statusCode == 401) {
+        setState(() {
+          _errorMessage = "email-in-use".i18n();
+          _passwordTextEditingController.clear();
+          _emailTextEditingController.clear();
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "unknow-error".i18n();
+        _passwordTextEditingController.clear();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        _errorMessage = null;
+      });
+    });
   }
 }
