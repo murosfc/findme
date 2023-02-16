@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:findme/FindnMeHome.dart';
 import 'package:findme/api/ApiUrls.dart';
 import 'package:findme/pages/RegisterScreen.dart';
@@ -51,6 +49,7 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (input) => _email = input!,
               ),
               TextFormField(
+                style: const TextStyle(color: Colors.white),
                 controller: _passwordTextEditingController,
                 decoration: InputDecoration(
                   labelText: "password".i18n(),
@@ -64,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                     icon: Icon(_obscurePassword
                         ? Icons.visibility_off
                         : Icons.visibility),
+                    color: Colors.white70,
                   ),
                 ),
                 obscureText: _obscurePassword,
@@ -73,6 +73,21 @@ class _LoginPageState extends State<LoginPage> {
                 onSaved: (value) => _password = value!,
               ),
               const SizedBox(height: 15),
+              _isLoading
+                  ? CircularProgressIndicator()
+                  : MaterialButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          _submit();
+                        }
+                      },
+                      color: VisualIdColors.colorBlue(),
+                      textColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0)),
+                      child: const Text("Login"),
+                    ),
               InkWell(
                 onTap: () => _register(),
                 child: Text(
@@ -81,40 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: TextDecoration.underline, color: Colors.blue),
                 ),
               ),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : MaterialButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _formKey.currentState!.save();
-                          _submit();
-                        }
-                      },
-                      child: const Text("Login"),
-                      color: VisualIdColors.colorBlue(),
-                      textColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0)),
-                    ),
               if (_errorMessage != null)
                 Text(
                   _errorMessage!,
                   style: const TextStyle(color: Colors.red),
                 ),
-              MaterialButton(
-                color: Colors.white,
-                textColor: Theme.of(context).primaryColor,
-                onPressed: _handleSignIn,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    //Image.asset("../assets/google.png",aheight: 0.1, width: 0.1),
-                    const SizedBox(width: 50),
-                    Text("google-log".i18n()),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20.0),
             ],
           ),
         ),
@@ -134,21 +120,22 @@ class _LoginPageState extends State<LoginPage> {
         'email': _email,
         'password': _password,
       };
-      String bodyJson = json.encode(body);
-      Response response = await http.post(Uri.parse(ApiUrls().logintionUrl()),
+      String bodyJson = json.encode({
+        'email': _email,
+        'password': _password,
+      });
+      Response response = await http.post(Uri.parse(ApiUrls.loginUrl()),
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
       if (response.statusCode == 200) {
+        //User.storeCredentials(response);
         // ignore: use_build_context_synchronously
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => FindnMeHome()),
         );
-      } else {
-        if (response.statusCode == 401) {
-          _errorMessage = "invalid-credentials".i18n();
-        }
+      } else if (response.statusCode == 401) {
+        _errorMessage = "invalid-credentials".i18n();
       }
-
       setState(() {
         _isLoading = false;
       });

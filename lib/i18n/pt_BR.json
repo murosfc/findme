@@ -15,9 +15,17 @@
     "enter-name": "Digite seu nome",
     "enter-email": "Digite seu e-mail",
     "enter-password": "Digite uma senha",
-    "reenter-password": "Digite novamente a senha",
+    "reenter-password": "redigite a senha",
     "pass-not-match": "As senhas digitadas precisam ser iguais",
-    "email-in-use": "O e-mail informado já está em uso.\n Você pode tentar fazer login ou registrar com outro e-mail",
+    "email-in-use": "O e-mail informado já está em uso.\n Você pode tentar fazer login \nou registrar com outro e-mail",
     "unknow-error": "Erro desconhecido",
-    "invalid-credentials": "E-mail ou senha inválidos"
+    "invalid-credentials": "E-mail ou senha inválidos",
+    "logout": "Desconectar",
+    "register-success": "Registrado com sucesso!",
+    "redirect-login": "Você será redirecionado para o login",
+    "pass-rules": "Regras de senha:",
+    "pass-len": "Pelo menos 8 caracteres",
+    "pass-cap": "Pelo menos uma letra maiúscula",
+    "pass-special": "Pelo menos um caractere especial",
+    "pass-num": "Pelo menos um número"
 }

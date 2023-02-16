@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
 
+import '../pages/RegisterScreen.dart';
+
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -67,6 +69,18 @@ class MainDrawer extends StatelessWidget {
               color: Colors.white70,
             ),
             title: Text("config".i18n(),
+                style: const TextStyle(color: Colors.white70)),
+          ),
+          ListTile(
+            onTap: () {
+              //User.flushUserData();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            leading: const Icon(
+              Icons.logout,
+              color: Colors.white70,
+            ),
+            title: Text("logout".i18n(),
                 style: const TextStyle(color: Colors.white70)),
           ),
         ],

@@ -17,7 +17,15 @@
     "enter-password": "Please enter a password",
     "reenter-password": "Re-enter Password",
     "pass-not-match": "Passwords do not match",
-    "email-in-use": "The e-mail informed is already in use.\n You can try to login or register informing a different e-mail",
+    "email-in-use": "The e-mail informed is already in use.\nYou can try to login \nor register informing a different e-mail",
     "unknow-error": "Unknow error",
-    "invalid-credentials": "Invalid e-mail or password"
+    "invalid-credentials": "Invalid e-mail or password",
+    "logout": "Logout",
+    "register-success": "Successfully registered!",
+    "redirect-login": "You will be redirect to login page",
+    "pass-rules": "Password rules:",
+    "pass-len": "At least 8 characters long",
+    "pass-cap": "At least one capital letter",
+    "pass-special": "At least one special character",
+    "pass-num": "At least one number"
 }
