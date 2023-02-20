@@ -1,4 +1,4 @@
-import 'package:findme/FindnMeHome.dart';
+import 'package:findme/pages/FindnMeHome.dart';
 import 'package:findme/api/ApiUrls.dart';
 import 'package:findme/pages/RegisterScreen.dart';
 import 'package:flutter/material.dart';

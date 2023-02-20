@@ -3,9 +3,9 @@ import 'dart:ui';
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:flutter/material.dart';
 
-import 'drawers/MainDrawer.dart';
-import 'drawers/SearchBar.dart';
-import 'model/Contacts.dart';
+import '../drawers/MainDrawer.dart';
+import '../drawers/SearchBar.dart';
+import '../model/Contacts.dart';
 
 class FindnMeHome extends StatefulWidget {
   @override

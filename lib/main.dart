@@ -1,4 +1,4 @@
-import 'package:findme/FindnMeHome.dart';
+import 'package:findme/pages/FindnMeHome.dart';
 import 'package:findme/drawers/MainDrawer.dart';
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/drawers/SearchBar.dart';
