@@ -1,68 +1,68 @@
 class ApiUrls {
-  static String _endpoint = "https://findnme.herokuapp.com/api/user";
-  static String _register = "/register";
-  static String _login = "/auth";
-  static String _logout = "/logout";
-  static String _getContacts = "/contacts";
-  static String _getPendingContacts = "/contacts/pending";
-  static String _addContact = "/contacts/add";
-  static String _unBlockContact = "/contacts/un-block";
-  static String _authorizeContact = "/contacts/authorize";
-  static String _removeContact = "/contacts/remove";
-  static String _userUpdate = "/update";
-  static String _validatePassword = "/update/validate-pass";
-  static String _updatePassword = "/update/password";
-  static String _deleteUser = "/delete";
+  static String endpoint = "https://findnme.herokuapp.com/api/user";
+  static String register = "/register";
+  static String login = "/auth";
+  static String logout = "/logout";
+  static String getContacts = "/contacts";
+  static String getPendingContacts = "/contacts/pending";
+  static String addContact = "/contacts/add";
+  static String unBlockContact = "/contacts/un-block";
+  static String authorizeContact = "/contacts/authorize";
+  static String removeContact = "/contacts/remove";
+  static String userUpdate = "/update";
+  static String validatePassword = "/update/validate-pass";
+  static String updatePassword = "/update/password";
+  static String deleteUser = "/delete";
 
   static String registrationUrl() {
-    return _endpoint + _register;
+    return endpoint + register;
   }
 
   static String loginUrl() {
-    return _endpoint + _login;
+    return endpoint + login;
   }
 
   static String logoutUrl() {
-    return _endpoint + _logout;
+    return endpoint + logout;
   }
 
   static String getContactsUrl() {
-    return _endpoint + _getContacts;
+    return endpoint + getContacts;
   }
 
   static String pendingContactsUrl() {
-    return _endpoint + _getPendingContacts;
+    return endpoint + getPendingContacts;
   }
 
   static String addContactUrl() {
-    return _endpoint + _addContact;
+    return endpoint + addContact;
   }
 
   static String unBlockContactUrl() {
-    return _endpoint + _unBlockContact;
+    return endpoint + unBlockContact;
   }
 
   static String authorizeContactUrl() {
-    return _endpoint + _authorizeContact;
+    return endpoint + authorizeContact;
   }
 
   static String removeContactUrl() {
-    return _endpoint + _removeContact;
+    return endpoint + removeContact;
   }
 
   static String updateUserUrl() {
-    return _endpoint + _userUpdate;
+    return endpoint + userUpdate;
   }
 
   static String validatePasswordUrl() {
-    return _endpoint + _validatePassword;
+    return endpoint + validatePassword;
   }
 
   static String updatedPasswordUrl() {
-    return _endpoint + _updatePassword;
+    return endpoint + updatePassword;
   }
 
   static String deleteUserUrl() {
-    return _endpoint + _deleteUser;
+    return endpoint + deleteUser;
   }
 }

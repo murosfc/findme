@@ -27,5 +27,8 @@
     "pass-len": "Pelo menos 8 caracteres",
     "pass-cap": "Pelo menos uma letra maiúscula",
     "pass-special": "Pelo menos um caractere especial",
-    "pass-num": "Pelo menos um número"
+    "pass-num": "Pelo menos um número",
+    "contacts": "Contatos",
+    "pending": "Pendentes",
+    "blocked": "Bloqueados"
 }

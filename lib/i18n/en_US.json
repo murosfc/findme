@@ -27,5 +27,8 @@
     "pass-len": "At least 8 characters long",
     "pass-cap": "At least one capital letter",
     "pass-special": "At least one special character",
-    "pass-num": "At least one number"
+    "pass-num": "At least one number",
+    "contacts": "Contacts",
+    "pending": "Pending",
+    "blocked": "Blocked"
 }

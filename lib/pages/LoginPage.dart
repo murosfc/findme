@@ -9,6 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../colors/VisualIdColors.dart';
+import '../model/User.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -116,17 +117,13 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      Map<String, String> body = {
-        'email': _email,
-        'password': _password,
-      };
-      String bodyJson = json.encode({
-        'email': _email,
-        'password': _password,
-      });
+      String bodyJson = json.encode({'email': _email, 'password': _password});
+      print(bodyJson);
       Response response = await http.post(Uri.parse(ApiUrls.loginUrl()),
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
+      print(response.statusCode);
       if (response.statusCode == 200) {
+        print(response.body);
         //User.storeCredentials(response);
         // ignore: use_build_context_synchronously
         Navigator.push(

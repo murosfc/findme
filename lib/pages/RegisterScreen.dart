@@ -123,10 +123,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     return "enter-password".i18n();
                   }
                   bool hasMinLength = value.length >= 8;
-                  bool hasUpperCase = value.contains(new RegExp(r'[A-Z]'));
-                  bool hasDigits = value.contains(new RegExp(r'[0-9]'));
+                  bool hasUpperCase = value.contains(RegExp(r'[A-Z]'));
+                  bool hasDigits = value.contains(RegExp(r'[0-9]'));
                   bool hasSpecialCharacters =
-                      value.contains(new RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+                      value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
 
                   String instructions = 'pass-rules'.i18n();
                   if (!hasMinLength) {

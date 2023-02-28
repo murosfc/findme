@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:flutter/material.dart';
+import 'package:localization/localization.dart';
 
 import '../drawers/MainDrawer.dart';
 import '../drawers/SearchBar.dart';
@@ -15,9 +16,9 @@ class FindnMeHome extends StatefulWidget {
 class _FindnMeHomeState extends State<FindnMeHome> {
   final contacts = <Contacts>[];
   final List<Tab> tabs = <Tab>[
-    Tab(text: 'Contatos'),
-    Tab(text: 'Aguardando Aprovação'),
-    Tab(text: 'Bloqueados'),
+    Tab(text: 'contacts'.i18n()),
+    Tab(text: 'pending'.i18n()),
+    Tab(text: 'blocked'.i18n()),
   ];
   final List<List<Contacts>> contactLists = <List<Contacts>>[];
 
