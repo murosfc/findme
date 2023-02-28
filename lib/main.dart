@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
 
+import 'model/User.dart';
+
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
-      home: LoginPage(), //FindnMeHome(),
+      home: User.getToken() == '' ? LoginPage() : FindnMeHome(),
       debugShowCheckedModeBanner: false,
     );
   }

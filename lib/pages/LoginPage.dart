@@ -123,10 +123,9 @@ class _LoginPageState extends State<LoginPage> {
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
       print(response.statusCode);
       if (response.statusCode == 200) {
-        print(response.body);
-        //User.storeCredentials(response);
+        User.storeCredentials(response);
         // ignore: use_build_context_synchronously
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => FindnMeHome()),
         );

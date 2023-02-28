@@ -20,4 +20,16 @@ class User {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.clear();
   }
+
+  static Future<String> getName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString('name') ?? '';
+    return username;
+  }
+
+  static Future<String> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString('auth_token') ?? '';
+    return username;
+  }
 }
