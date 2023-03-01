@@ -1,13 +1,16 @@
 import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
 
+import '../model/User.dart';
 import '../pages/RegisterScreen.dart';
 
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    User user = User();
     return Container(
       color: VisualIdColors.colorGreen(),
       child: Column(
@@ -73,8 +76,33 @@ class MainDrawer extends StatelessWidget {
           ),
           ListTile(
             onTap: () {
-              //User.flushUserData();
-              Navigator.pushReplacementNamed(context, '/login');
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("logout".i18n()),
+                    content: Text("logout?".i18n()),
+                    actions: <Widget>[
+                      TextButton(
+                        child: Text('no'.i18n()),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('yes'.i18n()),
+                        onPressed: () {
+                          user.flushUserData();
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(builder: (_) => LoginPage()),
+                              (route) => false);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
             },
             leading: const Icon(
               Icons.logout,

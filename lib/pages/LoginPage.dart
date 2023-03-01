@@ -40,6 +40,7 @@ class _LoginPageState extends State<LoginPage> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
@@ -49,6 +50,7 @@ class _LoginPageState extends State<LoginPage> {
                     !input!.contains('@') ? "email-valid".i18n() : null,
                 onSaved: (input) => _email = input!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: _passwordTextEditingController,
@@ -89,6 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(20.0)),
                       child: const Text("Login"),
                     ),
+              const SizedBox(height: 15),
               InkWell(
                 onTap: () => _register(),
                 child: Text(
@@ -110,6 +113,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _submit() async {
+    User user = User();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -123,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
       print(response.statusCode);
       if (response.statusCode == 200) {
-        User.storeCredentials(response);
+        user.storeCredentials(response);
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,

@@ -71,35 +71,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 onSaved: (value) => _email = value!,
               ),
-              /*TextFormField(
-                style: const TextStyle(color: Colors.white),
-                controller: _passwordTextEditingController,
-                decoration: InputDecoration(
-                  labelText: "password".i18n(),
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  suffixIcon: IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                    icon: Icon(_obscurePassword
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                  ),
-                ),
-                obscureText: _obscurePassword,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "reenter-password".i18n();
-                  }
-                  _password = value;
-                  return null;
-                },
-                onSaved: (value) {
-                  _password = value!;
-                },
-              ),*/
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: _passwordTextEditingController,

@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
+    User user = User();
     LocalJsonLocalization.delegate.directories = ['lib/i18n'];
     return MaterialApp(
       localizationsDelegates: [
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
-      home: User.getToken() == '' ? LoginPage() : FindnMeHome(),
+      home: user.getToken() == null ? LoginPage() : FindnMeHome(),
       debugShowCheckedModeBanner: false,
     );
   }

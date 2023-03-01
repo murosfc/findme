@@ -6,7 +6,7 @@ import 'package:localization/localization.dart';
 
 import '../drawers/MainDrawer.dart';
 import '../drawers/SearchBar.dart';
-import '../model/Contacts.dart';
+import '../model/Contact.dart';
 
 class FindnMeHome extends StatefulWidget {
   @override
@@ -14,33 +14,33 @@ class FindnMeHome extends StatefulWidget {
 }
 
 class _FindnMeHomeState extends State<FindnMeHome> {
-  final contacts = <Contacts>[];
+  final contacts = <Contact>[];
   final List<Tab> tabs = <Tab>[
     Tab(text: 'contacts'.i18n()),
     Tab(text: 'pending'.i18n()),
     Tab(text: 'blocked'.i18n()),
   ];
-  final List<List<Contacts>> contactLists = <List<Contacts>>[];
+  final List<List<Contact>> contactLists = <List<Contact>>[];
 
   @override
   void initState() {
     super.initState();
     contactLists.addAll([
       contacts,
-      <Contacts>[],
-      <Contacts>[],
+      <Contact>[],
+      <Contact>[],
     ]);
   }
 
   void addToContactsList() {
     setState(() {
-      contacts.add(Contacts(12357354367, "Novo contato", "novo@gmail.com",
+      contacts.add(Contact(12357354367, "Novo contato", "novo@gmail.com",
           "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg/1200px-Elon_Musk_Royal_Society_%28crop2%29.jpg"));
     });
     print(contacts[contacts.length - 1].getFirstNameLetter());
   }
 
-  Widget buildContactsList(List<Contacts> list) {
+  Widget buildContactsList(List<Contact> list) {
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: list.length,

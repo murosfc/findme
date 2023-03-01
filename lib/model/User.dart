@@ -5,20 +5,26 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
+  final storage = const FlutterSecureStorage();
+
   User();
 
-  static Future<void> storeCredentials(Response response) async {
+  Future<void> storeCredentials(Response response) async {
     final Map<String, dynamic> data = json.decode(response.body);
-    const storage = FlutterSecureStorage();
     await storage.write(key: 'auth_token', value: data['token']);
     await storage.write(key: 'id', value: data['id']);
     await storage.write(key: 'name', value: data['name']);
     await storage.write(key: 'familyName', value: data['familyName']);
   }
 
-  static Future<void> flushUserData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.clear();
+  Future<void> flushUserData() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      await storage.deleteAll();
+    } catch (e) {
+      print('Error flushing user data: $e');
+    }
   }
 
   static Future<String> getName() async {
@@ -27,9 +33,10 @@ class User {
     return username;
   }
 
-  static Future<String> getToken() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString('auth_token') ?? '';
-    return username;
+  Future<String> getToken() async {
+    String authToken = storage.read(key: 'auth_token').toString();
+    print("\n\nToken:");
+    print(authToken);
+    return authToken;
   }
 }

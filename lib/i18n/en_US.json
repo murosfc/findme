@@ -21,6 +21,7 @@
     "unknow-error": "Unknow error",
     "invalid-credentials": "Invalid e-mail or password",
     "logout": "Logout",
+    "logout?": "Are you sure you want to logout",
     "register-success": "Successfully registered!",
     "redirect-login": "You will be redirect to login page",
     "pass-rules": "Password rules:",
@@ -30,5 +31,7 @@
     "pass-num": "At least one number",
     "contacts": "Contacts",
     "pending": "Pending",
-    "blocked": "Blocked"
+    "blocked": "Blocked",
+    "yes": "Yes",
+    "no": "No"
 }

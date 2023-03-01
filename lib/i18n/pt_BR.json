@@ -21,6 +21,7 @@
     "unknow-error": "Erro desconhecido",
     "invalid-credentials": "E-mail ou senha inválidos",
     "logout": "Desconectar",
+    "logout?": "Tem certeza que deseja se desconectar?",
     "register-success": "Registrado com sucesso!",
     "redirect-login": "Você será redirecionado para o login",
     "pass-rules": "Regras de senha:",
@@ -30,5 +31,7 @@
     "pass-num": "Pelo menos um número",
     "contacts": "Contatos",
     "pending": "Pendentes",
-    "blocked": "Bloqueados"
+    "blocked": "Bloqueados",
+    "yes": "Sim",
+    "no": "Não"
 }
