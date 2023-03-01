@@ -13,6 +13,7 @@ void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     User user = User();
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
-      home: user.getToken() == null ? LoginPage() : FindnMeHome(),
+      home: user.isUserLogged() ? FindnMeHome() : FindnMeHome(),
       debugShowCheckedModeBanner: false,
     );
   }
