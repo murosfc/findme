@@ -1,13 +1,8 @@
-import 'package:findme/pages/FindnMeHome.dart';
-import 'package:findme/drawers/MainDrawer.dart';
 import 'package:findme/colors/VisualIdColors.dart';
-import 'package:findme/drawers/SearchBar.dart';
-import 'package:findme/pages/LoginPage.dart';
+import 'package:findme/pages/LoadingScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
-
-import 'model/User.dart';
 
 void main() => runApp(const MyApp());
 
@@ -16,7 +11,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User user = User();
     LocalJsonLocalization.delegate.directories = ['lib/i18n'];
     return MaterialApp(
       localizationsDelegates: [
@@ -27,13 +21,13 @@ class MyApp extends StatelessWidget {
       ],
       theme: ThemeData(
         primarySwatch: VisualIdColors.colorGreen(),
-        scaffoldBackgroundColor: Color.fromRGBO(18, 18, 18, 1),
+        scaffoldBackgroundColor: const Color.fromRGBO(18, 18, 18, 1),
       ),
       supportedLocales: const [
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
-      home: user.isUserLogged() ? FindnMeHome() : FindnMeHome(),
+      home: const LoadingScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

@@ -92,7 +92,7 @@ class MainDrawer extends StatelessWidget {
                       TextButton(
                         child: Text('yes'.i18n()),
                         onPressed: () {
-                          user.flushUserData();
+                          user.deleteAllSecureData();
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(builder: (_) => LoginPage()),

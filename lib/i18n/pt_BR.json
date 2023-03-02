@@ -19,6 +19,7 @@
     "pass-not-match": "As senhas digitadas precisam ser iguais",
     "email-in-use": "O e-mail informado já está em uso.\n Você pode tentar fazer login \nou registrar com outro e-mail",
     "unknow-error": "Erro desconhecido",
+    "connection-error": "Não foi possível estabelecer conexão com o servidor. \nTente novamente mais tarde.",
     "invalid-credentials": "E-mail ou senha inválidos",
     "logout": "Desconectar",
     "logout?": "Tem certeza que deseja se desconectar?",
@@ -33,5 +34,6 @@
     "pending": "Pendentes",
     "blocked": "Bloqueados",
     "yes": "Sim",
-    "no": "Não"
+    "no": "Não",
+    "loading:": "Carregando..."
 }

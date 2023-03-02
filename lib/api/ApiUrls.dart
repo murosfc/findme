@@ -1,68 +1,44 @@
 class ApiUrls {
-  static String endpoint = "https://findnme.herokuapp.com/api/user";
-  static String register = "/register";
-  static String login = "/auth";
-  static String logout = "/logout";
-  static String getContacts = "/contacts";
-  static String getPendingContacts = "/contacts/pending";
-  static String addContact = "/contacts/add";
-  static String unBlockContact = "/contacts/un-block";
-  static String authorizeContact = "/contacts/authorize";
-  static String removeContact = "/contacts/remove";
-  static String userUpdate = "/update";
-  static String validatePassword = "/update/validate-pass";
-  static String updatePassword = "/update/password";
-  static String deleteUser = "/delete";
+  static const String endpoint = "https://findnme.herokuapp.com/api/user";
+  static const String registration = "$endpoint/register";
+  static const String login = "$endpoint/auth";
+  static const String logout = "$endpoint/logout";
+  static const String getContacts =
+      "$endpoint/contacts?type="; //add parameter type=
+  static const String getPendingContacts = "$endpoint/contacts/pending";
+  static const String addContact = "$endpoint/contacts/add";
+  static const String unBlockContact = "$endpoint/contacts/un-block";
+  static const String authorizeContact = "$endpoint/contacts/authorize";
+  static const String removeContact = "$endpoint/contacts/remove";
+  static const String userUpdate = "$endpoint/update";
+  static const String validatePassword = "$endpoint/update/validate-pass";
+  static const String updatePassword = "$endpoint/update/password";
+  static const String deleteUser = "$endpoint/delete";
+  static const String checkToken = "$endpoint/check/token";
 
-  static String registrationUrl() {
-    return endpoint + register;
-  }
+  /*static String registrationUrl() => endpoint + register;
 
-  static String loginUrl() {
-    return endpoint + login;
-  }
+  static String loginUrl() => endpoint + login;
 
-  static String logoutUrl() {
-    return endpoint + logout;
-  }
+  static String getContactsUrl() => endpoint + getContacts;
 
-  static String getContactsUrl() {
-    return endpoint + getContacts;
-  }
+  static String pendingContactsUrl() => endpoint + getPendingContacts;
 
-  static String pendingContactsUrl() {
-    return endpoint + getPendingContacts;
-  }
+  static String addContactUrl() => endpoint + addContact;
 
-  static String addContactUrl() {
-    return endpoint + addContact;
-  }
+  static String unBlockContactUrl() => endpoint + unBlockContact;
 
-  static String unBlockContactUrl() {
-    return endpoint + unBlockContact;
-  }
+  static String authorizeContactUrl() => endpoint + authorizeContact;
 
-  static String authorizeContactUrl() {
-    return endpoint + authorizeContact;
-  }
+  static String removeContactUrl() => endpoint + removeContact;
 
-  static String removeContactUrl() {
-    return endpoint + removeContact;
-  }
+  static String updateUserUrl() => endpoint + userUpdate;
 
-  static String updateUserUrl() {
-    return endpoint + userUpdate;
-  }
+  static String validatePasswordUrl() => endpoint + validatePassword;
 
-  static String validatePasswordUrl() {
-    return endpoint + validatePassword;
-  }
+  static String updatedPasswordUrl() => endpoint + updatePassword;
 
-  static String updatedPasswordUrl() {
-    return endpoint + updatePassword;
-  }
+  static String deleteUserUrl() => endpoint + deleteUser;
 
-  static String deleteUserUrl() {
-    return endpoint + deleteUser;
-  }
+  static String checkTokenValid() => endpoint + checkToken;*/
 }

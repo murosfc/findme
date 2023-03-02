@@ -21,9 +21,7 @@ class _LoginPageState extends State<LoginPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late String _email, _password;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
-  bool _isLoading = false,
-      _obscurePassword = true,
-      _obscureReenterPassword = true;
+  bool _isLoading = false, _obscurePassword = true;
   String? _errorMessage;
   final _passwordTextEditingController = TextEditingController();
 
@@ -35,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
         title: const Text('Login'),
       ),
       body: Container(
-        padding: EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -44,10 +42,17 @@ class _LoginPageState extends State<LoginPage> {
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                    labelText: "email".i18n(),
-                    labelStyle: const TextStyle(color: Colors.white70)),
+                  labelText: "email".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
                 validator: (input) =>
-                    !input!.contains('@') ? "email-valid".i18n() : null,
+                    !input!.contains('@') ? "valid-email".i18n() : null,
                 onSaved: (input) => _email = input!,
               ),
               const SizedBox(height: 15),
@@ -57,6 +62,12 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   labelText: "password".i18n(),
                   labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
@@ -71,13 +82,16 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 obscureText: _obscurePassword,
                 validator: (value) {
-                  value!.length < 8 ? "password-valid".i18n() : null;
+                  if (value!.isEmpty) {
+                    return "enter-password".i18n();
+                  }
+                  return null;
                 },
                 onSaved: (value) => _password = value!,
               ),
               const SizedBox(height: 15),
               _isLoading
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : MaterialButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
@@ -122,10 +136,8 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       String bodyJson = json.encode({'email': _email, 'password': _password});
-      print(bodyJson);
-      Response response = await http.post(Uri.parse(ApiUrls.loginUrl()),
+      Response response = await http.post(Uri.parse(ApiUrls.login),
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         user.storeCredentials(response);
         // ignore: use_build_context_synchronously
@@ -134,25 +146,23 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => FindnMeHome()),
         );
       } else if (response.statusCode == 401) {
-        _errorMessage = "invalid-credentials".i18n();
+        _handleErrorMessage("invalid-credentials".i18n());
+      } else {
+        _handleErrorMessage("connection-error".i18n());
       }
-      setState(() {
-        _isLoading = false;
-      });
-      Future.delayed(const Duration(seconds: 5), () {
-        setState(() {
-          _errorMessage = null;
-        });
-      });
     }
   }
 
-  Future<void> _handleSignIn() async {
-    try {
-      await _googleSignIn.signIn();
-    } catch (error) {
-      print(error);
-    }
+  _handleErrorMessage(String message) {
+    _errorMessage = message;
+    setState(() {
+      _isLoading = false;
+    });
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        _errorMessage = null;
+      });
+    });
   }
 
   _register() {

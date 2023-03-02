@@ -14,38 +14,28 @@ class FindnMeHome extends StatefulWidget {
 }
 
 class _FindnMeHomeState extends State<FindnMeHome> {
-  List<Contact> normal = <Contact>[],
-      pending = <Contact>[],
-      blocked = <Contact>[];
+  final contacts = <Contact>[];
   final List<Tab> tabs = <Tab>[
     Tab(text: 'contacts'.i18n()),
     Tab(text: 'pending'.i18n()),
     Tab(text: 'blocked'.i18n()),
   ];
-
-  bool _isLoading = true;
+  final List<List<Contact>> contactLists = <List<Contact>>[];
 
   @override
   void initState() {
     super.initState();
-    loadContactList();
-  }
-
-  Future<void> loadContactList() async {
-    normal = await Contact.getContactList("NORMAL");
-    pending = await Contact.getContactList("PENDING");
-    blocked = await Contact.getContactList("BLOCKED");
-    print("Tamanho normal = $normal.length");
-    print("Tamanho pending = $pending.length");
-    print("Tamanho blocked = $blocked.length");
-    setState(() {
-      _isLoading = false;
-    });
+    contactLists.addAll([
+      contacts,
+      <Contact>[],
+      <Contact>[],
+    ]);
   }
 
   void addToContactsList() {
     setState(() {
-      //ADD CONTACT
+      contacts.add(Contact(12357354367, "Novo contato", "novo@gmail.com",
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Elon_Musk_Royal_Society_%28crop2%29.jpg/1200px-Elon_Musk_Royal_Society_%28crop2%29.jpg"));
     });
   }
 
@@ -68,7 +58,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text(list[index].name + " " + list[index].familyName,
+                  Text(list[index].name,
                       style: const TextStyle(color: Colors.white)),
                   const Spacer(),
                   IconButton(
@@ -115,17 +105,13 @@ class _FindnMeHomeState extends State<FindnMeHome> {
             tabs: tabs,
           ),
         ),
-        body: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
-            : TabBarView(
-                children: [
-                  buildContactsList(normal),
-                  buildContactsList(pending),
-                  buildContactsList(blocked),
-                ],
-              ),
+        body: TabBarView(
+          children: [
+            buildContactsList(contactLists[0]),
+            buildContactsList(contactLists[1]),
+            buildContactsList(contactLists[2]),
+          ],
+        ),
         drawer: Drawer(
           child: MainDrawer(),
         ),

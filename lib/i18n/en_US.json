@@ -18,7 +18,8 @@
     "reenter-password": "Re-enter Password",
     "pass-not-match": "Passwords do not match",
     "email-in-use": "The e-mail informed is already in use.\nYou can try to login \nor register informing a different e-mail",
-    "unknow-error": "Unknow error",
+    "unknow-error": "Unknow error.",
+    "connection-error": "Unable to establish connection. \nTry again later.",
     "invalid-credentials": "Invalid e-mail or password",
     "logout": "Logout",
     "logout?": "Are you sure you want to logout",
@@ -33,5 +34,6 @@
     "pending": "Pending",
     "blocked": "Blocked",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "loading:": "Loading..."
 }

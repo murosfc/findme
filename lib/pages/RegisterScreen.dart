@@ -37,11 +37,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           key: _formKey,
           child: Column(
             children: <Widget>[
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                    labelText: "name".i18n(),
-                    labelStyle: const TextStyle(color: Colors.white70)),
+                  labelText: "name".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return "enter-name".i18n();
@@ -50,19 +58,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 onSaved: (value) => _name = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                    labelText: "surname".i18n(),
-                    labelStyle: const TextStyle(color: Colors.white70)),
+                  labelText: "surname".i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
                 onSaved: (value) => _familyName = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: _emailTextEditingController,
                 decoration: InputDecoration(
-                    labelText: 'email'.i18n(),
-                    labelStyle: const TextStyle(color: Colors.white70)),
+                  labelText: 'email'.i18n(),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return "enter-email".i18n();
@@ -71,12 +95,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 onSaved: (value) => _email = value!,
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: _passwordTextEditingController,
                 decoration: InputDecoration(
                   labelText: "password".i18n(),
                   labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
@@ -118,12 +149,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   _password = value!;
                 },
               ),
+              const SizedBox(height: 15),
               TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: _passwordReenterTextEditingController,
                 decoration: InputDecoration(
                   labelText: "reenter-password".i18n(),
                   labelStyle: const TextStyle(color: Colors.white70),
+                  filled: true,
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
                   suffixIcon: IconButton(
                     onPressed: () {
                       setState(() {
@@ -147,6 +185,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 },
                 onSaved: (value) => _reenterPassword = value!,
               ),
+              const SizedBox(height: 15),
               _isLoading
                   ? CircularProgressIndicator()
                   : MaterialButton(
@@ -187,7 +226,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     };
     String bodyJson = json.encode(body);
     try {
-      Response response = await http.post(Uri.parse(ApiUrls.registrationUrl()),
+      Response response = await http.post(Uri.parse(ApiUrls.registration),
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
       if (response.statusCode == 200) {
         _showRegistrationSuccessPopup();
