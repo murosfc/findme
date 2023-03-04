@@ -33,11 +33,13 @@ class _LoadingScreenState extends State<LoadingScreen>
     User user = User();
     bool isUserLogged = await user.isUserLogged();
     if (isUserLogged) {
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => FindnMeHome()),
       );
     } else {
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),

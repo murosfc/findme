@@ -4,9 +4,10 @@ import 'package:findme/colors/VisualIdColors.dart';
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
-import '../drawers/MainDrawer.dart';
-import '../drawers/SearchBar.dart';
+import '../components/AddContact.dart';
 import '../model/Contact.dart';
+import '../components/MainDrawer.dart';
+import '../components/SearchBar.dart';
 
 class FindnMeHome extends StatefulWidget {
   @override
@@ -24,6 +25,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   ];
 
   bool _isLoading = true;
+  Contact _newContactAdd = Contact(0, '', '', '');
 
   @override
   void initState() {
@@ -35,18 +37,26 @@ class _FindnMeHomeState extends State<FindnMeHome> {
     normal = await Contact.getContactList("NORMAL");
     pending = await Contact.getContactList("PENDING");
     blocked = await Contact.getContactList("BLOCKED");
-    print("Tamanho normal = $normal.length");
-    print("Tamanho pending = $pending.length");
-    print("Tamanho blocked = $blocked.length");
     setState(() {
       _isLoading = false;
     });
   }
 
-  void addToContactsList() {
-    setState(() {
-      //ADD CONTACT
-    });
+  void _handleAddContact(Contact _newContactAdd) {
+    print(_newContactAdd.name);
+    if (_newContactAdd.id != 0) {
+      setState(() {
+        pending.add(_newContactAdd);
+      });
+      //_newContactAdd = Contact(0, '', '', '');
+    }
+  }
+
+  Future<Contact> _showAddContactDialog() async {
+    return await showDialog(
+      context: context,
+      builder: (_) => AddContactDialog(onAddContact: _handleAddContact),
+    );
   }
 
   Widget buildContactsList(List<Contact> list) {
@@ -62,19 +72,22 @@ class _FindnMeHomeState extends State<FindnMeHome> {
               leading: CircleAvatar(
                 backgroundColor: VisualIdColors.colorGreen(),
                 backgroundImage: NetworkImage(list[index].pictureURL),
-                child: Text(list[index].getFirstNamesLetters(),
+                child: Text(
+                    list[index].pictureURL == ""
+                        ? list[index].getFirstNamesLetters()
+                        : "",
                     style: const TextStyle(color: Colors.white)),
               ),
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Text(list[index].name + " " + list[index].familyName,
+                  Text("${list[index].name} ${list[index].familyName}",
                       style: const TextStyle(color: Colors.white)),
                   const Spacer(),
-                  IconButton(
+                  /*IconButton(
                     icon: const Icon(Icons.favorite),
                     onPressed: () {},
-                  ),
+                  ), TO*/
                   IconButton(
                     icon: const Icon(Icons.more_vert),
                     onPressed: () {},
@@ -102,7 +115,9 @@ class _FindnMeHomeState extends State<FindnMeHome> {
           actions: <Widget>[
             IconButton(
               icon: const Icon(Icons.person_add),
-              onPressed: addToContactsList,
+              onPressed: () async {
+                _newContactAdd = await _showAddContactDialog();
+              },
             ),
             IconButton(
               icon: const Icon(Icons.search),

@@ -21,6 +21,7 @@
     "unknow-error": "Erro desconhecido",
     "connection-error": "Não foi possível estabelecer conexão com o servidor. \nTente novamente mais tarde.",
     "invalid-credentials": "E-mail ou senha inválidos",
+    "invalid-token": "Seu login expirou, redirecionando para a pagina de login...",
     "logout": "Desconectar",
     "logout?": "Tem certeza que deseja se desconectar?",
     "register-success": "Registrado com sucesso!",
@@ -31,9 +32,11 @@
     "pass-special": "Pelo menos um caractere especial",
     "pass-num": "Pelo menos um número",
     "contacts": "Contatos",
+    "contact-not-found": "Não encontrado contado com o e-mail informado",
     "pending": "Pendentes",
     "blocked": "Bloqueados",
     "yes": "Sim",
     "no": "Não",
+    "cancel": "Cancelar",
     "loading:": "Carregando..."
 }

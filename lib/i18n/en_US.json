@@ -21,6 +21,7 @@
     "unknow-error": "Unknow error.",
     "connection-error": "Unable to establish connection. \nTry again later.",
     "invalid-credentials": "Invalid e-mail or password",
+    "invalid-token": "Your login has expired, redirecting to login page...",
     "logout": "Logout",
     "logout?": "Are you sure you want to logout",
     "register-success": "Successfully registered!",
@@ -31,9 +32,11 @@
     "pass-special": "At least one special character",
     "pass-num": "At least one number",
     "contacts": "Contacts",
+    "contact-not-found": "Contact not found with informed e-mail",
     "pending": "Pending",
     "blocked": "Blocked",
     "yes": "Yes",
     "no": "No",
+    "cancel": "Cancel",
     "loading:": "Loading..."
 }
