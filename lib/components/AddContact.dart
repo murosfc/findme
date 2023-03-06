@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
@@ -32,20 +34,21 @@ class _AddContactDialogState extends State<AddContactDialog> {
         // ignore: use_build_context_synchronously
         Navigator.pop(context, _newContact);
       } catch (error) {
-        if (error.toString() == "Invalid credentials") {
+        if (error.toString().replaceAll('Exception: ', '') ==
+            'invalid-token'.i18n()) {
           setState(() {
-            _errorMessage = error.toString().replaceAll('Exception:', '');
+            _errorMessage = error.toString().replaceAll('Exception: ', '');
             _isLoading = false;
           });
-          await Future.delayed(const Duration(seconds: 2));
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => LoginPage()),
-          );
+          Timer(const Duration(seconds: 2), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
+          });
         } else {
           setState(() {
-            _errorMessage = error.toString().replaceAll('Exception:', '');
+            _errorMessage = error.toString().replaceAll('Exception: ', '');
             _isLoading = false;
           });
         }

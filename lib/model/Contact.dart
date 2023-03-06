@@ -35,8 +35,12 @@ class Contact {
     } else if (response.statusCode == 401) {
       user.deleteAllSecureData();
       throw Exception('invalid-token'.i18n());
+    } else if (response.statusCode == 403) {
+      throw Exception('already-contact'.i18n());
+    } else if (response.statusCode == 404) {
+      throw Exception('contact-not-found'.i18n());
     } else {
-      throw Exception("Contact not with informed e-mail");
+      throw Exception('server-error'.i18n());
     }
   }
 
@@ -45,7 +49,7 @@ class Contact {
     User user = User();
     List<Contact> contacts = [];
     String? token = await user.readSecureData("token");
-    if (type == "PENDING") {
+    if (type == "REQUESTS") {
       url = ApiUrls.getPendingContacts;
     } else {
       url = "${ApiUrls.getContacts}$type";

@@ -15,13 +15,15 @@ class FindnMeHome extends StatefulWidget {
 }
 
 class _FindnMeHomeState extends State<FindnMeHome> {
-  List<Contact> normal = <Contact>[],
-      pending = <Contact>[],
-      blocked = <Contact>[];
+  List<Contact> normal = <Contact>[];
+  List<Contact> requests = <Contact>[];
+  List<Contact> pending = <Contact>[];
+  List<Contact> blocked = <Contact>[];
   final List<Tab> tabs = <Tab>[
     Tab(text: 'contacts'.i18n()),
+    Tab(text: 'contact-requests'.i18n()),
     Tab(text: 'pending'.i18n()),
-    Tab(text: 'blocked'.i18n()),
+    const Tab(icon: Icon(Icons.block)),
   ];
 
   bool _isLoading = true;
@@ -35,6 +37,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
   Future<void> loadContactList() async {
     normal = await Contact.getContactList("NORMAL");
+    requests = await Contact.getContactList("REQUESTS");
     pending = await Contact.getContactList("PENDING");
     blocked = await Contact.getContactList("BLOCKED");
     setState(() {
@@ -43,12 +46,11 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   }
 
   void _handleAddContact(Contact _newContactAdd) {
-    print(_newContactAdd.name);
     if (_newContactAdd.id != 0) {
       setState(() {
         pending.add(_newContactAdd);
       });
-      //_newContactAdd = Contact(0, '', '', '');
+      _newContactAdd = Contact(0, '', '', '');
     }
   }
 
@@ -59,7 +61,19 @@ class _FindnMeHomeState extends State<FindnMeHome> {
     );
   }
 
+  Widget _buildEmptyListPlaceholder() {
+    return Center(
+      child: Text(
+        'no-contacts'.i18n(),
+        style: const TextStyle(fontSize: 18.0),
+      ),
+    );
+  }
+
   Widget buildContactsList(List<Contact> list) {
+    if (list.isEmpty) {
+      return _buildEmptyListPlaceholder();
+    }
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: list.length,
@@ -67,40 +81,40 @@ class _FindnMeHomeState extends State<FindnMeHome> {
         borderRadius: BorderRadius.circular(15.0),
         child: Container(
           color: VisualIdColors.colorBlue(),
-          child: Column(children: [
-            ListTile(
-              leading: CircleAvatar(
-                backgroundColor: VisualIdColors.colorGreen(),
-                backgroundImage: NetworkImage(list[index].pictureURL),
-                child: Text(
+          child: Column(
+            children: [
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: VisualIdColors.colorGreen(),
+                  backgroundImage: NetworkImage(list[index].pictureURL),
+                  child: Text(
                     list[index].pictureURL == ""
                         ? list[index].getFirstNamesLetters()
                         : "",
-                    style: const TextStyle(color: Colors.white)),
-              ),
-              title: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text("${list[index].name} ${list[index].familyName}",
-                      style: const TextStyle(color: Colors.white)),
-                  const Spacer(),
-                  /*IconButton(
-                    icon: const Icon(Icons.favorite),
-                    onPressed: () {},
-                  ), TO*/
-                  IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () {},
+                    style: const TextStyle(color: Colors.white),
                   ),
-                ],
+                ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text(
+                      "${list[index].name} ${list[index].familyName}",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
-      separatorBuilder: (BuildContext context, int index) => const SizedBox(
-        height: 10,
-      ),
+      separatorBuilder: (BuildContext context, int index) =>
+          const SizedBox(height: 10),
     );
   }
 
@@ -127,6 +141,9 @@ class _FindnMeHomeState extends State<FindnMeHome> {
             ),
           ],
           bottom: TabBar(
+            isScrollable: true,
+            indicatorColor: Colors.white,
+            indicatorSize: TabBarIndicatorSize.label,
             tabs: tabs,
           ),
         ),
@@ -136,9 +153,38 @@ class _FindnMeHomeState extends State<FindnMeHome> {
               )
             : TabBarView(
                 children: [
-                  buildContactsList(normal),
-                  buildContactsList(pending),
-                  buildContactsList(blocked),
+                  normal.isEmpty
+                      ? Center(
+                          child: Text(
+                            'no-contacts'.i18n(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : buildContactsList(normal),
+                  requests.isEmpty
+                      ? Center(
+                          child: Text(
+                            'no-contacts-request'.i18n(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : buildContactsList(requests),
+                  pending.isEmpty
+                      ? Center(
+                          child: Text(
+                            'no-pending-approval'.i18n(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : buildContactsList(pending),
+                  blocked.isEmpty
+                      ? Center(
+                          child: Text(
+                            'no-contacts-blocked'.i18n(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        )
+                      : buildContactsList(blocked),
                 ],
               ),
         drawer: Drawer(
