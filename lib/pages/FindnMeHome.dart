@@ -6,6 +6,7 @@ import 'package:localization/localization.dart';
 
 import '../components/AddContact.dart';
 import '../model/Contact.dart';
+import '../model/User.dart';
 import '../components/MainDrawer.dart';
 import '../components/SearchBar.dart';
 
@@ -61,6 +62,19 @@ class _FindnMeHomeState extends State<FindnMeHome> {
     );
   }
 
+  Future<void> handleSelectedUserOption(String value, Contact contact) async {
+    if (value == 'request_location') {
+      //aqui eu acho que vai enviar o id e o token da pessoa que pediu para localizar e o id da pessoa que ta sendo
+      // requisitado a localizacao
+      //enviar essas infos pra api em python?
+
+    } else if (value == 'block_user') {
+      //bloquear o usuario
+    } else if (value == 'delete_user') {
+      //deletar o usuario
+    }
+  }
+
   Widget _buildEmptyListPlaceholder() {
     return Center(
       child: Text(
@@ -102,10 +116,36 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () {},
-                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.more_vert),
+                    //   onPressed: () {},
+                    // ),
+                    Container(
+                      color: Colors.grey[200], // Set the color of the menu
+                      child: PopupMenuButton<String>(
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'request_location',
+                            child: Text('Request location'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'block_user',
+                            child: Text('Block user'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'delete_user',
+                            child: Text('Delete User'),
+                          ),
+                          // Add more items as needed
+                        ],
+                        onSelected: (String value) {
+                          // Send the information of the user that was clicked on
+                          handleSelectedUserOption(value, list[index]);
+                        },
+                        icon: const Icon(Icons.more_vert),
+                      ),
+                    )
                   ],
                 ),
               ),
