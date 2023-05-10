@@ -7,6 +7,7 @@ import 'package:localization/localization.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../colors/VisualIdColors.dart';
 import '../model/User.dart';
@@ -135,7 +136,12 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      String bodyJson = json.encode({'email': _email, 'password': _password});
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      print("dddddddddddddddd");
+      print(fcmToken);
+
+      String bodyJson = json.encode(
+          {'email': _email, 'password': _password, 'fcm_token': fcmToken});
       Response response = await http.post(Uri.parse(ApiUrls.login),
           headers: {'Content-Type': 'application/json'}, body: bodyJson);
       if (response.statusCode == 200) {

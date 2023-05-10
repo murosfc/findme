@@ -1,5 +1,8 @@
 class ApiUrls {
-  static const String endpoint = "https://findnme.herokuapp.com/api/user";
+  // static const String endpoint = "https://findnme.herokuapp.com/api/user";
+  static const String endpoint = "http://localhost:8080/api/user";
+  static const String endpointLocation = "http://127.0.0.1:5000/";
+
   static const String registration = "$endpoint/register";
   static const String login = "$endpoint/auth";
   static const String logout = "$endpoint/logout";
