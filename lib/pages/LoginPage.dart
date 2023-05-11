@@ -137,7 +137,6 @@ class _LoginPageState extends State<LoginPage> {
       });
 
       final fcmToken = await FirebaseMessaging.instance.getToken();
-
       String bodyJson = json.encode(
           {'email': _email, 'password': _password, 'fcmToken': fcmToken});
       Response response = await http.post(Uri.parse(ApiUrls.login),
