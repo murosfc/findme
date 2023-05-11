@@ -67,7 +67,6 @@ class _FindnMeHomeState extends State<FindnMeHome> {
       //aqui eu acho que vai enviar o id e o token da pessoa que pediu para localizar e o id da pessoa que ta sendo
       // requisitado a localizacao
       //enviar essas infos pra api em python?
-
     } else if (value == 'block_user') {
       //bloquear o usuario
     } else if (value == 'delete_user') {
@@ -121,7 +120,6 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                     //   onPressed: () {},
                     // ),
                     Container(
-                      color: Colors.grey[200], // Set the color of the menu
                       child: PopupMenuButton<String>(
                         itemBuilder: (BuildContext context) =>
                             <PopupMenuEntry<String>>[

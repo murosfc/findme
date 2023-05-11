@@ -29,6 +29,10 @@ class User {
         key: 'pictureUrl',
         value: data['pictureUrl'],
         aOptions: _getAndroidOptions());
+    await _storage.write(
+        key: 'fcmToken',
+        value: data['fcmToken'],
+        aOptions: _getAndroidOptions());
   }
 
   Future<void> deleteAllSecureData() async {
@@ -38,6 +42,12 @@ class User {
   Future<String?> readSecureData(String key) async {
     var readData =
         await _storage.read(key: key, aOptions: _getAndroidOptions());
+    return readData;
+  }
+
+  Future<String?> getFcmToken() async {
+    var readData =
+        await _storage.read(key: "fcmToken", aOptions: _getAndroidOptions());
     return readData;
   }
 
