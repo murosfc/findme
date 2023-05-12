@@ -1,12 +1,11 @@
 import 'dart:convert';
 
-import 'package:findme/api/ApiUrls.dart';
+import 'package:findme/api/ResponseStatusCode.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:localization/localization.dart';
-import 'package:http/http.dart' as http;
 
 import '../colors/VisualIdColors.dart';
+import '../model/User.dart';
 import 'LoginPage.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String _name, _familyName, _email, _password, _reenterPassword = "";
+  late String _name, _familyName, _email, _password, _reenterPassword;
   bool _isLoading = false,
       _obscurePassword = true,
       _obscureReenterPassword = true;
@@ -31,7 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         title: Text("register".i18n()),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Form(
           key: _formKey,
@@ -130,20 +129,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   bool hasSpecialCharacters =
                       value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
 
-                  String instructions = 'pass-rules'.i18n();
-                  if (!hasMinLength) {
-                    instructions += "\n- " + "pass-len".i18n();
+                  String instructions = "";
+
+                  if (!hasMinLength ||
+                      !hasUpperCase ||
+                      !hasDigits ||
+                      !hasDigits ||
+                      !hasSpecialCharacters) {
+                    instructions += 'pass-rules'.i18n();
+
+                    if (!hasMinLength) {
+                      instructions += "\n- " + "pass-len".i18n();
+                    }
+                    if (!hasUpperCase) {
+                      instructions += "\n- " + "pass-cap".i18n();
+                    }
+                    if (!hasDigits) {
+                      instructions += "\n- " + "pass-num".i18n();
+                    }
+                    if (!hasSpecialCharacters) {
+                      instructions += "\n- " + "pass-special".i18n();
+                    }
+                    return instructions;
                   }
-                  if (!hasUpperCase) {
-                    instructions += "\n- " + "pass-cap".i18n();
-                  }
-                  if (!hasDigits) {
-                    instructions += "\n- " + "pass-num".i18n();
-                  }
-                  if (!hasSpecialCharacters) {
-                    instructions += "\n- " + "pass-special".i18n();
-                  }
-                  return instructions;
+                  return null;
                 },
                 onSaved: (value) {
                   _password = value!;
@@ -178,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value!.isEmpty) {
                     return "reenter-password".i18n();
                   }
-                  if (value != _password) {
+                  if (value != _passwordTextEditingController.text) {
                     return "pass-not-match".i18n();
                   }
                   return null;
@@ -187,7 +196,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               const SizedBox(height: 15),
               _isLoading
-                  ? CircularProgressIndicator()
+                  ? const CircularProgressIndicator()
                   : MaterialButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
@@ -224,14 +233,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       'email': _email,
       'password': _password,
     };
-    String bodyJson = json.encode(body);
+
     try {
-      Response response = await http.post(Uri.parse(ApiUrls.registration),
-          headers: {'Content-Type': 'application/json'}, body: bodyJson);
-      if (response.statusCode == 200) {
+      int responseStatusCode = await User().register(body);
+      if (responseStatusCode == ResponseStatusCode.SUCESS) {
         _showRegistrationSuccessPopup();
-        // ignore: use_build_context_synchronously
-      } else if (response.statusCode == 401) {
+      } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
         setState(() {
           _errorMessage = "email-in-use".i18n();
           _passwordTextEditingController.clear();
@@ -261,8 +268,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('register-sucess'.i18n()),
-        content: Text('You have successfully registered.'),
+        title: const Text('status'),
+        content: Text('register-sucess'.i18n()),
         actions: [
           TextButton(
             onPressed: () {
@@ -272,7 +279,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 MaterialPageRoute(builder: (context) => LoginPage()),
               );
             },
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),

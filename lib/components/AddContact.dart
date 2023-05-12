@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
 import '../model/Contact.dart';
+import '../model/User.dart';
 import '../pages/LoginPage.dart';
 
 class AddContactDialog extends StatefulWidget {
@@ -29,7 +30,7 @@ class _AddContactDialogState extends State<AddContactDialog> {
         _isLoading = true;
       });
       try {
-        _newContact = await Contact.addContact(_email);
+        _newContact = (await User().addContact(_email))!;
         widget.onAddContact(_newContact);
         // ignore: use_build_context_synchronously
         Navigator.pop(context, _newContact);

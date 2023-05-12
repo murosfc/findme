@@ -1,13 +1,9 @@
+import 'package:findme/api/ResponseStatusCode.dart';
 import 'package:findme/pages/FindnMeHome.dart';
-import 'package:findme/api/ApiUrls.dart';
+
 import 'package:findme/pages/RegisterScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
 import 'package:localization/localization.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 import '../colors/VisualIdColors.dart';
 import '../model/User.dart';
@@ -21,7 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late String _email, _password;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
   bool _isLoading = false, _obscurePassword = true;
   String? _errorMessage;
   final _passwordTextEditingController = TextEditingController();
@@ -46,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: "email".i18n(),
                   labelStyle: const TextStyle(color: Colors.white70),
                   filled: true,
-                  fillColor: Color.fromARGB(255, 50, 50, 50),
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10.0),
@@ -64,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                   labelText: "password".i18n(),
                   labelStyle: const TextStyle(color: Colors.white70),
                   filled: true,
-                  fillColor: Color.fromARGB(255, 50, 50, 50),
+                  fillColor: const Color.fromARGB(255, 50, 50, 50),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(10.0),
@@ -128,7 +123,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _submit() async {
-    User user = User();
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
@@ -136,19 +130,15 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      final fcmToken = await FirebaseMessaging.instance.getToken();
-      String bodyJson = json.encode(
-          {'email': _email, 'password': _password, 'fcmToken': fcmToken});
-      Response response = await http.post(Uri.parse(ApiUrls.login),
-          headers: {'Content-Type': 'application/json'}, body: bodyJson);
-      if (response.statusCode == 200) {
-        user.storeCredentials(response);
+      int responseStatusCode = await User().login(_email, _password);
+
+      if (responseStatusCode == ResponseStatusCode.SUCESS) {
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => FindnMeHome()),
         );
-      } else if (response.statusCode == 401) {
+      } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
         _handleErrorMessage("invalid-credentials".i18n());
       } else {
         _handleErrorMessage("connection-error".i18n());

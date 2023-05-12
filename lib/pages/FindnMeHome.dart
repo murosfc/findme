@@ -37,19 +37,19 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   }
 
   Future<void> loadContactList() async {
-    normal = await Contact.getContactList("NORMAL");
-    requests = await Contact.getContactList("REQUESTS");
-    pending = await Contact.getContactList("PENDING");
-    blocked = await Contact.getContactList("BLOCKED");
+    normal = await User().getContactList("NORMAL");
+    requests = await User().getContactList("REQUESTS");
+    pending = await User().getContactList("PENDING");
+    blocked = await User().getContactList("BLOCKED");
     setState(() {
       _isLoading = false;
     });
   }
 
-  void _handleAddContact(Contact _newContactAdd) {
-    if (_newContactAdd.id != 0) {
+  void _handleAddContact(Contact newContactAdd) {
+    if (newContactAdd.id != 0) {
       setState(() {
-        pending.add(_newContactAdd);
+        pending.add(newContactAdd);
       });
       _newContactAdd = Contact(0, '', '', '');
     }

@@ -1,4 +1,3 @@
-
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ import '../pages/RegisterScreen.dart';
 class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    User user = User();
     return Container(
       color: VisualIdColors.colorGreen(),
       child: Column(
@@ -93,7 +91,7 @@ class MainDrawer extends StatelessWidget {
                       TextButton(
                         child: Text('yes'.i18n()),
                         onPressed: () {
-                          user.deleteAllSecureData();
+                          User().logout();
                           Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(builder: (_) => LoginPage()),

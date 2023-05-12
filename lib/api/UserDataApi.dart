@@ -1,4 +1,4 @@
-class ApiUrls {
+class UserDataApi {
   static const String endpoint = "https://findnme.herokuapp.com/api/user";
   //static const String endpoint = "http://localhost:8080/api/user";
   //static const String endpointLocation = "http://127.0.0.1:5000/";
@@ -18,30 +18,4 @@ class ApiUrls {
   static const String updatePassword = "$endpoint/update/password";
   static const String deleteUser = "$endpoint/delete";
   static const String checkToken = "$endpoint/check/token";
-
-  /*static String registrationUrl() => endpoint + register;
-
-  static String loginUrl() => endpoint + login;
-
-  static String getContactsUrl() => endpoint + getContacts;
-
-  static String pendingContactsUrl() => endpoint + getPendingContacts;
-
-  static String addContactUrl() => endpoint + addContact;
-
-  static String unBlockContactUrl() => endpoint + unBlockContact;
-
-  static String authorizeContactUrl() => endpoint + authorizeContact;
-
-  static String removeContactUrl() => endpoint + removeContact;
-
-  static String updateUserUrl() => endpoint + userUpdate;
-
-  static String validatePasswordUrl() => endpoint + validatePassword;
-
-  static String updatedPasswordUrl() => endpoint + updatePassword;
-
-  static String deleteUserUrl() => endpoint + deleteUser;
-
-  static String checkTokenValid() => endpoint + checkToken;*/
 }
