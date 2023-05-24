@@ -64,6 +64,10 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
   Future<void> handleSelectedUserOption(String value, Contact contact) async {
     if (value == 'request_location') {
+      Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ARScreen()),
+            );
       //aqui eu acho que vai enviar o id e o token da pessoa que pediu para localizar e o id da pessoa que ta sendo
       // requisitado a localizacao
       //enviar essas infos pra api em python?

@@ -45,6 +45,9 @@ dependencies:
   firebase_messaging: ^14.5.0
   configuration: ^1.0.0
 
+  ar_flutter_plugin: ^2.0.1
+  arcore_flutter_plugin: ^0.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
