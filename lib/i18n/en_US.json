@@ -45,5 +45,9 @@
     "yes": "Yes",
     "no": "No",
     "cancel": "Cancel",
-    "loading:": "Loading..."
+    "loading": "Loading...",
+    "finding": "Finding",
+    "end": "End",
+    "end-session": "End session",
+    "end-session-question": "Are you sure you want to end the session?"
 }

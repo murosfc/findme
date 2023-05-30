@@ -45,5 +45,9 @@
     "yes": "Sim",
     "no": "Não",
     "cancel": "Cancelar",
-    "loading:": "Carregando..."
+    "loading": "Carregando...",
+    "finding": "Finding",
+    "end": "Encerrar",
+    "end-session": "Ecerrar sessão",
+    "end-session-question": "Você tem certeza que deseja encerrar a sessão?"
 }

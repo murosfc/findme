@@ -1,5 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.findme">
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Limits app visibility in the Google Play Store to ARCore supported devices
+     (https://developers.google.com/ar/devices). -->
+    <uses-feature android:name="android.hardware.camera.ar" />
    <application
         android:label="findme"
         android:name="${applicationName}"
@@ -26,6 +30,9 @@
             </intent-filter>
             <android:name="com.google.ar.core.InstallActivity" android:exported="true"/>
         </activity>
+         <!-- "AR Optional" app, contains non-AR features that can be used when
+         "Google Play Services for AR" (ARCore) is not available. -->
+        <meta-data android:name="com.google.ar.core" android:value="optional" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

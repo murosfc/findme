@@ -62,14 +62,14 @@ class _LoadingScreenState extends State<LoadingScreen>
           opacity: _animationController,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const <Widget>[
-              CircularProgressIndicator(
+            children: <Widget>[
+              const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
-              SizedBox(height: 20.0),
+              const SizedBox(height: 20.0),
               Text(
-                "Loading...",
-                style: TextStyle(
+                'loading'.i18n(),
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,
                 ),
