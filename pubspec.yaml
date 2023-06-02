@@ -44,6 +44,11 @@ dependencies:
   firebase_core: ^2.11.0
   firebase_messaging: ^14.5.0
   configuration: ^1.0.0
+<<<<<<< Updated upstream
+=======
+  arcore_flutter_plugin: ^0.1.0
+  geolocator: ^9.0.2 
+>>>>>>> Stashed changes
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +73,10 @@ flutter:
   assets:
     - lib/i18n/
     - assets/icon/icon.png
+<<<<<<< Updated upstream
+=======
+    - assets/images/
+>>>>>>> Stashed changes
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
