@@ -2,29 +2,31 @@ import 'dart:async';
 
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:localization/localization.dart';
 import 'package:vector_math/vector_math_64.dart' as vector_math;
 
-class ARScreen extends StatefulWidget {
+class ARScreenSquare extends StatefulWidget {
   final String userName;
 
-  const ARScreen({required this.userName});
+  const ARScreenSquare({required this.userName});
 
   @override
-  _ARScreenState createState() => _ARScreenState();
+  _ARScreenSquareState createState() => _ARScreenSquareState();
 }
 
-class _ARScreenState extends State<ARScreen> {
+class _ARScreenSquareState extends State<ARScreenSquare> {
   late ArCoreController arCoreController;
-  bool isObjectPlaced = false;
-  ArCoreNode? arrowNode;
-  Timer? _timer;
 
   @override
   void dispose() {
-    _timer?.cancel();
     arCoreController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   void _onARViewCreated(ArCoreController controller) {
@@ -33,21 +35,18 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _addARObject() async {
-    const objectPath = 'assets/scene.gltf';
-    final node = ArCoreReferenceNode(
-      name: 'arrow',
-      objectUrl: objectPath,
-      position: vector_math.Vector3(
-          0, 0, -1), // Set the position of the model as needed
-      scale:
-          vector_math.Vector3(1, 1, 1), // Set the scale of the model as needed
+    final square = ArCoreCube(
+      materials: [ArCoreMaterial(color: Colors.red)],
+      size: vector_math.Vector3(0.2, 0.2, 0.2),
     );
 
-    arCoreController.addArCoreNodeWithAnchor(node);
-    arrowNode = node;
-    setState(() {
-      isObjectPlaced = true;
-    });
+    final squareNode = ArCoreNode(
+      shape: square,
+      position: vector_math.Vector3(0, 0, -1), // Set the position of the square
+      name: 'square',
+    );
+
+    arCoreController.addArCoreNodeWithAnchor(squareNode);
   }
 
   void _updateARObjectPosition() {
@@ -59,6 +58,7 @@ class _ARScreenState extends State<ARScreen> {
   Widget build(BuildContext context) {
     var finding = 'finding'.i18n();
     var nome = "$finding ${widget.userName}";
+
     return Scaffold(
       appBar: AppBar(
         title: Text(nome),
