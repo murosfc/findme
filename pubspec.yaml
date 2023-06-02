@@ -45,6 +45,7 @@ dependencies:
   firebase_messaging: ^14.6.2
   configuration: ^1.0.0
   arcore_flutter_plugin: ^0.1.0
+  ar_flutter_plugin: ^0.7.3 
 
 dev_dependencies:
   flutter_test:
@@ -69,7 +70,7 @@ flutter:
   assets:
     - lib/i18n/
     - assets/icon/icon.png
-    - assets/models/scene.gltf
+    - assets/models/arrow.gltf
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

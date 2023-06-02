@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/pages/ARScreen.dart';
 import 'package:findme/pages/ARScreenSquare.dart';
+import 'package:findme/pages/ARObject.dart';
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
@@ -11,6 +12,7 @@ import '../model/Contact.dart';
 import '../model/User.dart';
 import '../components/MainDrawer.dart';
 import '../components/SearchBar.dart';
+import 'LocalAndOnlineObjectsWidget.dart';
 
 class FindnMeHome extends StatefulWidget {
   @override
@@ -70,11 +72,10 @@ class _FindnMeHomeState extends State<FindnMeHome> {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ARScreenSquare(
-                  userName: "${contact.name} ${contact.familyName}",
-                )),
+            builder:
+                (context) => //ARScreenSquare(userName: "${contact.name} ${contact.familyName}",)
+                    ARObject()),
       );
-
     } else if (value == 'block_user') {
       //bloquear o usuario
     } else if (value == 'delete_user') {

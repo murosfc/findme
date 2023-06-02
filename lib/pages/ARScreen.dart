@@ -26,15 +26,15 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   void initState() {
-    super.initState();    
+    super.initState();
   }
 
   void _onARViewCreated(ArCoreController controller) {
-    arCoreController = controller; 
+    arCoreController = controller;
     _addARObject();
   }
 
-  void _addARObject() async {    
+  void _addARObject() async {
     const objectPath = 'assets/models/scene.gltf';
     final node = ArCoreReferenceNode(
       name: 'arrow',
