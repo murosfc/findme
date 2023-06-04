@@ -1,10 +1,7 @@
 import 'dart:ui';
 
 import 'package:findme/colors/VisualIdColors.dart';
-<<<<<<< Updated upstream
-=======
 import 'package:findme/pages/ARScreen.dart';
->>>>>>> Stashed changes
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
@@ -68,20 +65,18 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
   Future<void> handleSelectedUserOption(String value, Contact contact) async {
     if (value == 'request_location') {
-<<<<<<< Updated upstream
-      //aqui eu acho que vai enviar o id e o token da pessoa que pediu para localizar e o id da pessoa que ta sendo
-      // requisitado a localizacao
-      //enviar essas infos pra api em python?
-=======
       //o código abaixo é apenas para testa a AR, precisa adicionar todo a conversa com o servidor
+      Map<String, double> remoteUserCoordinates = {};
+      remoteUserCoordinates['latitude'] = -14;
+      remoteUserCoordinates['longitude'] = -51;
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => ARScreen(userName: "${contact.name} ${contact.familyName}"),
-                  ),
+            builder: (context) => ARScreen(
+                  userName: "${contact.name} ${contact.familyName}",
+                  remoteUserCoordinates: remoteUserCoordinates,
+                )),
       );
-
->>>>>>> Stashed changes
     } else if (value == 'block_user') {
       //bloquear o usuario
     } else if (value == 'delete_user') {

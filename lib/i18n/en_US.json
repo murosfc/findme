@@ -47,5 +47,7 @@
     "cancel": "Cancel",
     "loading:": "Loading...",
     "permissions-required-alert": "Permissions required",
-    "permissions-required-message": "This app requires camera and location permissions to function properly. \nPlease grant these permissions in your device settings."
+    "permissions-required-message": "This app requires camera and location permissions to function properly. \nPlease grant these permissions in your device settings.",
+    "is-distance": "is",
+    "away": "away"
 }

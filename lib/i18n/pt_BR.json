@@ -47,5 +47,7 @@
     "cancel": "Cancelar",
     "loading:": "Carregando...",
     "permissions-required-alert": "Premissão necessária",
-    "permissions-required-message": "Este aplicativo requer permissão para acesso à camera e à localização, sem essas permissões não é possível continuar. \nPor favor, conceda as permissões nas configurações do seu aparelho"
+    "permissions-required-message": "Este aplicativo requer permissão para acesso à camera e à localização, sem essas permissões não é possível continuar. \nPor favor, conceda as permissões nas configurações do seu aparelho",
+    "is-distance": "está a",
+    "away": "de distância"
 }
