@@ -45,5 +45,7 @@
     "yes": "Yes",
     "no": "No",
     "cancel": "Cancel",
-    "loading:": "Loading..."
+    "loading:": "Loading...", 
+    "request-location-title": "Location request",
+    "request-location-body": "The user %{name} {$surname} is requesting access to your current location."
 }

@@ -1,11 +1,16 @@
+import 'dart:html';
 import 'dart:ui';
 
 import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/model/LocationHandler.dart';
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../api/ResponseStatusCode.dart';
 import '../components/AddContact.dart';
 import '../model/Contact.dart';
+import '../model/Notifications.dart';
 import '../model/User.dart';
 import '../components/MainDrawer.dart';
 import '../components/SearchBar.dart';
@@ -34,6 +39,11 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   void initState() {
     super.initState();
     loadContactList();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      Notifications.requestFirebaseMessagingPermission();
+      Notifications.initInfo(context);
+    });
   }
 
   Future<void> loadContactList() async {
@@ -64,9 +74,23 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
   Future<void> handleSelectedUserOption(String value, Contact contact) async {
     if (value == 'request_location') {
-      //aqui eu acho que vai enviar o id e o token da pessoa que pediu para localizar e o id da pessoa que ta sendo
-      // requisitado a localizacao
-      //enviar essas infos pra api em python?
+      PermissionStatus status = await Permission.location.request();
+      if (status.isGranted) {
+        int responseStatusCode =
+            await LocationHandler().requestLocation(contact);
+
+        if (responseStatusCode == ResponseStatusCode.SUCESS) {
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => FindnMeHome()),
+          );
+        } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+          print("Error");
+        } else {
+          print("Error");
+        }
+      }
     } else if (value == 'block_user') {
       //bloquear o usuario
     } else if (value == 'delete_user') {

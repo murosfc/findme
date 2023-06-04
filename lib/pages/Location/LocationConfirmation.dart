@@ -1,0 +1,68 @@
+import 'package:findme/model/RealTimeLocation.dart';
+import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+
+import '../../model/LocationHandler.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+class LocationConfirmationPage extends StatefulWidget {
+  @override
+  _LocationConfirmationPageState createState() =>
+      _LocationConfirmationPageState();
+}
+
+class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
+  late IO.Socket socket;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Compartilhar Localização'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Deseja compartilhar sua localização?'),
+            ElevatedButton(
+              child: Text('Sim'),
+              onPressed: () {
+                _shareLocation(true);
+              },
+            ),
+            ElevatedButton(
+              child: Text('Não'),
+              onPressed: () {
+                _shareLocation(false);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _shareLocation(share_location) async {
+    if (share_location) {
+      //criar rooom para enviar localizacao
+      PermissionStatus status = await Permission.location.request();
+
+      if (status.isGranted) {
+        RealTimeLocation realTimeLocation = RealTimeLocation();
+        //Gerar um id aleátorio para a room
+        String roomId = realTimeLocation.generateRoomId();
+        realTimeLocation.connect();
+        //Entrar em uma sala
+        realTimeLocation.joinRoom(roomId);
+        realTimeLocation.shareLocation(roomId);
+        realTimeLocation.getDistanceBetweenUsers(roomId);
+
+        int responseStatusCode = await LocationHandler().locationFeedBack(true);
+      }
+    } else {
+      int responseStatusCode = await LocationHandler().locationFeedBack(false);
+    }
+  }
+}

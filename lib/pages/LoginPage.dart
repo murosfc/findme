@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
 import '../colors/VisualIdColors.dart';
+import '../model/Notifications.dart';
 import '../model/User.dart';
 
 class LoginPage extends StatefulWidget {
