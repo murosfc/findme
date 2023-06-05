@@ -6,6 +6,8 @@ import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
+import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:findme/model/Calculation.dart';
 
@@ -21,6 +23,7 @@ class ARScreen extends StatefulWidget {
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
+  late ArCoreNode imageNode;
 
   //Arrow drawing variables
   bool showUpArrow = false,
@@ -81,11 +84,13 @@ class _ARScreenState extends State<ARScreen> {
     Position position =
         await Geolocator.getCurrentPosition(desiredAccuracy: desiredAccuracy);
 
-    localUserCoordinates['latitude'] = position.latitude;
-    localUserCoordinates['longitude'] = position.longitude;
+    setState(() {
+      localUserCoordinates['latitude'] = position.latitude;
+      localUserCoordinates['longitude'] = position.longitude;
 
-    distanceBetweenUsers = _calculation.calculateDistanceBetweenUsers(
-        remoteUserCoordinates, localUserCoordinates);
+      distanceBetweenUsers = _calculation.calculateDistanceBetweenUsers(
+          remoteUserCoordinates, localUserCoordinates);
+    });
   }
 
   static void updateRemoteUserLocation(
@@ -174,6 +179,60 @@ class _ARScreenState extends State<ARScreen> {
 
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;
+    _addImageNode();
+  }
+
+  Future<void> _addImageNode() async {
+    const String imageUrl =
+        'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
+    const IMG_SIZE = 512;
+
+    final response = await http.get(Uri.parse(imageUrl));
+    final imageBytes = response.bodyBytes;
+
+    final image = ArCoreImage(
+      bytes: imageBytes,
+      width: IMG_SIZE,
+      height: IMG_SIZE,
+    );
+
+    imageNode = ArCoreNode(
+      image: image,
+      position: vector.Vector3.zero(),
+      rotation: vector.Vector4.zero(),
+      scale: vector.Vector3(0.1, 0.1, 0.1),
+    );
+
+    final Matrix4 transformMatrix =
+        _calculation.convertCoordinatesToMatrix(remoteUserCoordinates);
+
+    imageNode.position!.value = vector.Vector3(
+      transformMatrix.getColumn(3).x,
+      transformMatrix.getColumn(3).y,
+      transformMatrix.getColumn(3).z,
+    );
+
+    final vector.Quaternion rotationQuaternion = vector.Quaternion(
+      transformMatrix.getRow(0).x,
+      transformMatrix.getRow(1).x,
+      transformMatrix.getRow(2).x,
+      transformMatrix.getRow(3).x,
+    );
+
+    imageNode.rotation!.value = vector.Vector4(
+      rotationQuaternion.x,
+      rotationQuaternion.y,
+      rotationQuaternion.z,
+      rotationQuaternion.w,
+    );
+
+    imageNode.scale?.value = vector.Vector3(
+      transformMatrix.getMaxScaleOnAxis(),
+      transformMatrix.getMaxScaleOnAxis(),
+      transformMatrix.getMaxScaleOnAxis(),
+    );
+
+    arCoreController.addArCoreNode(imageNode);
   }
 
   void showArrow(String direcao) {

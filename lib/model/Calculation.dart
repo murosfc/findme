@@ -14,7 +14,7 @@ class Calculation {
     return degrees * math.pi / 180.0;
   }
 
-  static Matrix4 _convertCoordinatesToMatrix(
+  Matrix4 convertCoordinatesToMatrix(
       Map<String, double> remoteUserCoordinates) {
     Matrix4 remoteUserCoordinatesToMatrix = Matrix4.identity();
     double earthRadius = 6371000; // Approximate radius of the Earth in meters
