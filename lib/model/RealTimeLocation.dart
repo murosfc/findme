@@ -7,7 +7,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 class RealTimeLocation {
   late IO.Socket socket;
   late Timer shareLocationTimer;
-
+  late double distanceBetween = 0.0;
   String generateRoomId() {
     // Generate a random room ID
     String characters =
@@ -76,22 +76,22 @@ class RealTimeLocation {
     socket.emit('shareLocation', locationUpdate);
   }
 
-  Future<void> getDistanceBetweenUsers(String roomId) async {
+  Future<void> getDistanceBetweenUsers(String? roomId) async {
     Position myPosition = await _getCurrentLocation();
-
+    print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
     socket.on('getFriendPosition', (location_data) async {
-      print(location_data);
+      print("Received friend position data: $location_data");
+
       Position currentPosition = await _getCurrentLocation();
       Position friendPosition = location_data;
 
-      double distanceBetween = Geolocator.distanceBetween(
+      double distance = Geolocator.distanceBetween(
         currentPosition.latitude,
         currentPosition.longitude,
         friendPosition.latitude,
         friendPosition.longitude,
       );
-      print("III");
-      print(distanceBetween);
+      distanceBetween = distance;
     });
   }
 }

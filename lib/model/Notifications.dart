@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Notifications {
@@ -62,17 +63,21 @@ class Notifications {
         final screen = data['screen'];
         final info_users = data['info_users'];
         final room_id = data['room_id'];
-
+        print("WWWWWWW");
+        print(room_id);
         final prefs = await SharedPreferences.getInstance();
+        final storage = FlutterSecureStorage();
+
         if (info_users != 'none') {
           // Salva as informações do solicitante para uso posterior, se necessário
+          await storage.write(key: 'info_users', value: info_users);
           await prefs.setString('info_users', json.encode(info_users));
         } else if ('room_id' != 'none') {
           await prefs.setString('room_id', json.encode(room_id));
           await prefs.setString('info_users', json.encode(info_users));
         }
 
-        if (screen != null && screen.isNotEmpty) {
+        if (screen != null && screen.isNotEmpty && screen != 'none') {
           if (screen == 'request_location') {
             Navigator.pushNamed(context, '/location-confirmation');
           } else if (screen == 'live_location_updates') {

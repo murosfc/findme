@@ -23,21 +23,23 @@ class LocationHandler {
     return response.statusCode;
   }
 
-  Future<int> locationFeedBack(bool shared_location) async {
+  Future<int> locationFeedBack(bool shared_location, String room_id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final info_users = prefs.getString('info_users');
     if (info_users != null) {
       final response_data = json.decode(info_users);
-
       Map<String, dynamic> jsonData = {
         "info_users": response_data,
         "shared_location": shared_location,
-        "room_id": "122312",
+        "room_id": room_id
       };
-
+      print("room_id");
+      print(room_id);
+      print("room_id");
+      print(shared_location);
       String bodyJson = json.encode(jsonData);
       Response response = await http.post(
-        Uri.parse(LocationDataApi.locationRefuse),
+        Uri.parse(LocationDataApi.locationFeedBack),
         headers: {'Content-Type': 'application/json'},
         body: bodyJson,
       );

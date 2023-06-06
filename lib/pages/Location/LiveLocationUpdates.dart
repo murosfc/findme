@@ -1,4 +1,6 @@
+import 'package:findme/model/RealTimeLocation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LiveLocationUpdates extends StatefulWidget {
   @override
@@ -6,15 +8,36 @@ class LiveLocationUpdates extends StatefulWidget {
 }
 
 class _LiveLocationUpdatesState extends State<LiveLocationUpdates> {
-  late String variable1;
-  late String variable2;
+  late double showDistance = 0.0;
+  late RealTimeLocation realTimeLocation;
 
   @override
   void initState() {
     super.initState();
-    // Call the variables here or fetch their values from an external source
-    variable1 = 'Value 1';
-    variable2 = 'Value 2';
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? roomId = prefs.getString('room_id');
+    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHH");
+    print(roomId);
+
+    realTimeLocation = RealTimeLocation();
+    realTimeLocation.connect();
+    realTimeLocation.joinRoom(roomId);
+
+    realTimeLocation.getDistanceBetweenUsers(roomId);
+
+    setState(() {
+      showDistance = realTimeLocation.distanceBetween;
+    });
+  }
+
+  @override
+  void dispose() {
+    realTimeLocation.disconnect();
+    super.dispose();
   }
 
   @override
@@ -27,8 +50,7 @@ class _LiveLocationUpdatesState extends State<LiveLocationUpdates> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Variable 1: $variable1'),
-            Text('Variable 2: $variable2'),
+            Text('Distance1: $showDistance'),
           ],
         ),
       ),

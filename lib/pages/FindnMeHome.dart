@@ -1,6 +1,3 @@
-import 'dart:html';
-import 'dart:ui';
-
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/model/LocationHandler.dart';
 import 'package:flutter/material.dart';

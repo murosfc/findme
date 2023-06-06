@@ -13,7 +13,7 @@ class LocationConfirmationPage extends StatefulWidget {
 }
 
 class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
-  late IO.Socket socket;
+  late RealTimeLocation realTimeLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +38,20 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
                 _shareLocation(false);
               },
             ),
+            ElevatedButton(
+              child: Text('Desconectar'),
+              onPressed: () {
+                _disconnect();
+              },
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _disconnect() async {
+    realTimeLocation.disconnect();
   }
 
   Future<void> _shareLocation(share_location) async {
@@ -50,19 +60,21 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
       PermissionStatus status = await Permission.location.request();
 
       if (status.isGranted) {
-        RealTimeLocation realTimeLocation = RealTimeLocation();
+        realTimeLocation = new RealTimeLocation();
         //Gerar um id aleátorio para a room
         String roomId = realTimeLocation.generateRoomId();
         realTimeLocation.connect();
         //Entrar em uma sala
         realTimeLocation.joinRoom(roomId);
         realTimeLocation.shareLocation(roomId);
-        realTimeLocation.getDistanceBetweenUsers(roomId);
+        int responseStatusCode =
+            await LocationHandler().locationFeedBack(true, roomId);
 
-        int responseStatusCode = await LocationHandler().locationFeedBack(true);
+        print(responseStatusCode);
       }
     } else {
-      int responseStatusCode = await LocationHandler().locationFeedBack(false);
+      int responseStatusCode =
+          await LocationHandler().locationFeedBack(false, "none");
     }
   }
 }
