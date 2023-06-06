@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:sensors_plus/sensors_plus.dart';
 
 import 'package:findme/model/Calculation.dart';
 
@@ -23,7 +24,9 @@ class ARScreen extends StatefulWidget {
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
-  late ArCoreNode imageNode;
+  late ArCoreNode imageNode;  
+  StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
+  bool _hasNodeBeenAddedSecondTime = false;
 
   //Arrow drawing variables
   bool showUpArrow = false,
@@ -37,10 +40,10 @@ class _ARScreenState extends State<ARScreen> {
   late Timer timer;
 
   //Geolocation variables
-  late Matrix4 remoteUserCoordinatesToMatrix;
   late Map<String, double> localUserCoordinates, remoteUserCoordinates;
   double distanceBetweenUsers = 0;
   final Calculation _calculation = Calculation();
+  late List<double> _orientationValues;
 
   void _buidArrowPaths() {
     final int QUANTITY_OF_ARROWS = 4;
@@ -58,18 +61,55 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   void initState() {
-    super.initState();
+    super.initState(); 
 
     localUserCoordinates = {};
     _updateLocalUserCoordinates();
     remoteUserCoordinates = widget.remoteUserCoordinates;
 
+    _orientationValues = List.filled(3, 0);
+    _startAccelerometerListener();
+
     timer =
         Timer.periodic(Duration(milliseconds: IMAGE_CHANGE_PERIOD_MS), (timer) {
-      setState(() {
+      setState(() {        
         imageIndex = (imageIndex + 1) % rightArrows.length;
       });
     });
+  }
+
+  void _startAccelerometerListener() {
+    _accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
+      _orientationValues = <double>[event.x, event.y, event.z];
+      showArrow(_getArrowDirection());
+      setState(() {
+        _orientationValues = <double>[event.x, event.y, event.z];
+        if (_isCameraFacingCoordinates() && !_hasNodeBeenAddedSecondTime) {
+          _hasNodeBeenAddedSecondTime = true;
+          _addImageNode();          
+        }
+      });
+    });
+  }
+
+  String _getArrowDirection() {
+    double x = _orientationValues[0];
+    double y = _orientationValues[1];
+
+    if (x.abs() > y.abs()) {
+      if (x < 0) {
+        return 'left';
+      } else {
+        return 'right';
+      }
+    } else {
+      if (y < 0) {
+        return 'up';
+      } else {
+        return 'down';
+      }
+    }
   }
 
   Future<void> _updateLocalUserCoordinates() async {
@@ -147,6 +187,7 @@ class _ARScreenState extends State<ARScreen> {
         children: [
           ArCoreView(
             onArCoreViewCreated: _onArCoreViewCreated,
+            enableTapRecognizer: false,
           ),
           _buildArrow(),
           Visibility(
@@ -178,17 +219,38 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _onArCoreViewCreated(ArCoreController controller) {
-    arCoreController = controller;
-    _addImageNode();
+    arCoreController = controller;   
+    _addImageNode();       
   }
 
-  Future<void> _addImageNode() async {
+  bool _isCameraFacingCoordinates() {
+    // Get the direction of the camera.
+    final double x = _orientationValues[0];
+    final double y = _orientationValues[1];
+    final double z = _orientationValues[2];
+
+    // Get the angle between the camera direction and the coordinates.
+    final double angle = atan2(y, x);
+    final double angleDegrees = angle * (180 / pi);
+
+    // Get the difference between the camera direction and the coordinates.
+    final double difference =
+        remoteUserCoordinates['longitude']! - angleDegrees;
+
+    // Return true if the difference is less than or equal to 10 degrees.
+    return difference <= 10;
+  }
+
+    Future<Uint8List> _loadImageFromUrl() async {
     const String imageUrl =
         'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
-    const IMG_SIZE = 512;
-
     final response = await http.get(Uri.parse(imageUrl));
-    final imageBytes = response.bodyBytes;
+    return response.bodyBytes;
+  }
+
+  void _addImageNode() async{
+    const IMG_SIZE = 512;    
+    Uint8List imageBytes = await _loadImageFromUrl();
 
     final image = ArCoreImage(
       bytes: imageBytes,
@@ -198,49 +260,28 @@ class _ARScreenState extends State<ARScreen> {
 
     imageNode = ArCoreNode(
       image: image,
-      position: vector.Vector3.zero(),
-      rotation: vector.Vector4.zero(),
-      scale: vector.Vector3(0.1, 0.1, 0.1),
+      position:
+          vector.Vector3(0.0, 0.0, -1.0), // Move o objeto para trás da câmera
+      rotation:
+          vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
+      scale: vector.Vector3(0.2, 0.2, 0.2),
     );
-
-    final Matrix4 transformMatrix =
-        _calculation.convertCoordinatesToMatrix(remoteUserCoordinates);
-
-    imageNode.position!.value = vector.Vector3(
-      transformMatrix.getColumn(3).x,
-      transformMatrix.getColumn(3).y,
-      transformMatrix.getColumn(3).z,
-    );
-
-    final vector.Quaternion rotationQuaternion = vector.Quaternion(
-      transformMatrix.getRow(0).x,
-      transformMatrix.getRow(1).x,
-      transformMatrix.getRow(2).x,
-      transformMatrix.getRow(3).x,
-    );
-
-    imageNode.rotation!.value = vector.Vector4(
-      rotationQuaternion.x,
-      rotationQuaternion.y,
-      rotationQuaternion.z,
-      rotationQuaternion.w,
-    );
-
-    imageNode.scale?.value = vector.Vector3(
-      transformMatrix.getMaxScaleOnAxis(),
-      transformMatrix.getMaxScaleOnAxis(),
-      transformMatrix.getMaxScaleOnAxis(),
-    );
-
-    arCoreController.addArCoreNode(imageNode);
+    if(_hasNodeBeenAddedSecondTime){
+      arCoreController.addArCoreNode(imageNode);      
+    }
   }
 
   void showArrow(String direcao) {
+    if (_isCameraFacingCoordinates()) {
+      showRightArrow = showLeftArrow = showDownArrow = showUpArrow = false;
+    }else{
     setState(() {
       showRightArrow = direcao == 'right';
       showLeftArrow = direcao == 'left';
       showDownArrow = direcao == 'down';
       showUpArrow = direcao == 'up';
     });
-  }
+    }
+  }  
+
 }

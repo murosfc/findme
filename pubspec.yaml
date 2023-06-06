@@ -48,6 +48,7 @@ dependencies:
   arcore_flutter_plugin: ^0.1.0
   geolocator: ^9.0.2 
   permission_handler: ^10.2.0
+  sensors_plus: ^3.0.2
 
 
 dev_dependencies:
