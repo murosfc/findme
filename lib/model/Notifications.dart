@@ -66,18 +66,16 @@ class Notifications {
         print("WWWWWWW");
         print(room_id);
         final prefs = await SharedPreferences.getInstance();
-        final storage = FlutterSecureStorage();
 
-        if (info_users != 'none') {
+        if (info_users != null && info_users != 'none') {
           // Salva as informações do solicitante para uso posterior, se necessário
-          await storage.write(key: 'info_users', value: info_users);
           await prefs.setString('info_users', json.encode(info_users));
         } else if ('room_id' != 'none') {
-          await prefs.setString('room_id', json.encode(room_id));
+          await prefs.setString('room_id', room_id);
           await prefs.setString('info_users', json.encode(info_users));
         }
 
-        if (screen != null && screen.isNotEmpty && screen != 'none') {
+        if (screen != null && screen != 'none') {
           if (screen == 'request_location') {
             Navigator.pushNamed(context, '/location-confirmation');
           } else if (screen == 'live_location_updates') {

@@ -64,6 +64,8 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
         //Gerar um id aleátorio para a room
         String roomId = realTimeLocation.generateRoomId();
         realTimeLocation.connect();
+        realTimeLocation.close();
+
         //Entrar em uma sala
         realTimeLocation.joinRoom(roomId);
         realTimeLocation.shareLocation(roomId);

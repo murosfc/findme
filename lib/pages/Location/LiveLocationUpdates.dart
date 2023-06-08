@@ -1,6 +1,7 @@
 import 'package:findme/model/RealTimeLocation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class LiveLocationUpdates extends StatefulWidget {
   @override
@@ -9,34 +10,33 @@ class LiveLocationUpdates extends StatefulWidget {
 
 class _LiveLocationUpdatesState extends State<LiveLocationUpdates> {
   late double showDistance = 0.0;
-  late RealTimeLocation realTimeLocation;
-
+  late String? roomId = '';
+  late RealTimeLocation realTimeLocation = RealTimeLocation();
   @override
   void initState() {
     super.initState();
-    fetchData();
+    getRoom().then((_) {
+      realTimeLocation = new RealTimeLocation();
+      realTimeLocation.connect();
+      realTimeLocation.joinRoom(roomId);
+      realTimeLocation.getDistanceBetweenUsers(updateDistance);
+    });
   }
 
-  Future<void> fetchData() async {
+  Future<void> getRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? roomId = prefs.getString('room_id');
-    print("HHHHHHHHHHHHHHHHHHHHHHHHHHHH");
-    print(roomId);
+    roomId = prefs.getString('room_id') ??
+        ''; // Assign an empty string if roomId is null
+  }
 
-    realTimeLocation = RealTimeLocation();
-    realTimeLocation.connect();
-    realTimeLocation.joinRoom(roomId);
-
-    realTimeLocation.getDistanceBetweenUsers(roomId);
-
+  void updateDistance(double newDistance) {
     setState(() {
-      showDistance = realTimeLocation.distanceBetween;
+      showDistance = newDistance;
     });
   }
 
   @override
   void dispose() {
-    realTimeLocation.disconnect();
     super.dispose();
   }
 
@@ -50,7 +50,12 @@ class _LiveLocationUpdatesState extends State<LiveLocationUpdates> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Distance1: $showDistance'),
+            Text(
+              'Distance1: ${showDistance?.toString() ?? ''}',
+              style: TextStyle(
+                color: Colors.white, // Set the text color to white
+              ),
+            ),
           ],
         ),
       ),

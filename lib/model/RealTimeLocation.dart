@@ -7,7 +7,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 class RealTimeLocation {
   late IO.Socket socket;
   late Timer shareLocationTimer;
-  late double distanceBetween = 0.0;
+  late double distance = 0.0;
   String generateRoomId() {
     // Generate a random room ID
     String characters =
@@ -43,8 +43,12 @@ class RealTimeLocation {
     socket.emit('leaveRoom', roomId);
   }
 
+  void close() {
+    socket.emit('close');
+  }
+
   void shareLocation(roomId) {
-    shareLocationTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+    shareLocationTimer = Timer.periodic(Duration(seconds: 2), (timer) async {
       Position position = await _getCurrentLocation();
       _sendLocation(position, roomId);
     });
@@ -76,22 +80,24 @@ class RealTimeLocation {
     socket.emit('shareLocation', locationUpdate);
   }
 
-  Future<void> getDistanceBetweenUsers(String? roomId) async {
-    Position myPosition = await _getCurrentLocation();
+  Future<void> getDistanceBetweenUsers(Function(double) callback) async {
     print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
     socket.on('getFriendPosition', (location_data) async {
       print("Received friend position data: $location_data");
 
-      Position currentPosition = await _getCurrentLocation();
-      Position friendPosition = location_data;
-
-      double distance = Geolocator.distanceBetween(
-        currentPosition.latitude,
-        currentPosition.longitude,
-        friendPosition.latitude,
-        friendPosition.longitude,
+      double friendLatitude = location_data['latitude'].toDouble();
+      double friendLongitude = location_data['longitude'].toDouble();
+      Position myPosition = await _getCurrentLocation();
+      print("fsdfsdfds");
+      print(myPosition);
+      distance = Geolocator.distanceBetween(
+        myPosition.latitude,
+        myPosition.longitude,
+        friendLatitude,
+        friendLongitude,
       );
-      distanceBetween = distance;
+      print(distance);
+      callback(distance);
     });
   }
 }

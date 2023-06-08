@@ -39,8 +39,13 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       Notifications.requestFirebaseMessagingPermission();
-      Notifications.initInfo(context);
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Notifications.initInfo(context);
   }
 
   Future<void> loadContactList() async {
