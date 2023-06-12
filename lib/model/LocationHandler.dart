@@ -33,10 +33,7 @@ class LocationHandler {
         "shared_location": shared_location,
         "room_id": room_id
       };
-      print("room_id");
-      print(room_id);
-      print("room_id");
-      print(shared_location);
+
       String bodyJson = json.encode(jsonData);
       Response response = await http.post(
         Uri.parse(LocationDataApi.locationFeedBack),

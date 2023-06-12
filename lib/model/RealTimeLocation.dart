@@ -48,7 +48,7 @@ class RealTimeLocation {
   }
 
   void shareLocation(roomId) {
-    shareLocationTimer = Timer.periodic(Duration(seconds: 2), (timer) async {
+    shareLocationTimer = Timer.periodic(Duration(seconds: 3), (timer) async {
       Position position = await _getCurrentLocation();
       _sendLocation(position, roomId);
     });
@@ -64,7 +64,7 @@ class RealTimeLocation {
   Future<Position> _getCurrentLocation() async {
     // Use the Geolocator package to get the current location
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.best);
     return position;
   }
 
@@ -81,22 +81,18 @@ class RealTimeLocation {
   }
 
   Future<void> getDistanceBetweenUsers(Function(double) callback) async {
-    print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
     socket.on('getFriendPosition', (location_data) async {
       print("Received friend position data: $location_data");
 
       double friendLatitude = location_data['latitude'].toDouble();
       double friendLongitude = location_data['longitude'].toDouble();
       Position myPosition = await _getCurrentLocation();
-      print("fsdfsdfds");
-      print(myPosition);
       distance = Geolocator.distanceBetween(
         myPosition.latitude,
         myPosition.longitude,
         friendLatitude,
         friendLongitude,
       );
-      print(distance);
       callback(distance);
     });
   }
