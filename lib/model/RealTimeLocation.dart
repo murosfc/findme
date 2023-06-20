@@ -48,9 +48,12 @@ class RealTimeLocation {
   }
 
   void shareLocation(roomId) {
-    shareLocationTimer = Timer.periodic(Duration(seconds: 3), (timer) async {
-      Position position = await _getCurrentLocation();
-      _sendLocation(position, roomId);
+    // Fetch the initial position immediately
+    _sendLocation(roomId);
+
+    // Start a timer to fetch the position at regular intervals
+    shareLocationTimer = Timer.periodic(Duration(seconds: 5), (timer) {
+      _sendLocation(roomId);
     });
   }
 
@@ -62,14 +65,13 @@ class RealTimeLocation {
   }
 
   Future<Position> _getCurrentLocation() async {
-    // Use the Geolocator package to get the current location
     Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best);
+        desiredAccuracy: LocationAccuracy.high);
     return position;
   }
 
-  Future<void> _sendLocation(Position position, String roomId) async {
-    // Prepare the location update data
+  void _sendLocation(String roomId) async {
+    Position position = await _getCurrentLocation();
     Map<String, dynamic> locationUpdate = {
       'room_id': roomId,
       'location_data': {
@@ -81,19 +83,18 @@ class RealTimeLocation {
   }
 
   Future<void> getDistanceBetweenUsers(Function(double) callback) async {
-    socket.on('getFriendPosition', (location_data) async {
-      print("Received friend position data: $location_data");
-
-      double friendLatitude = location_data['latitude'].toDouble();
-      double friendLongitude = location_data['longitude'].toDouble();
+    socket.on('getFriendPosition', (locationData) async {
+      double friendLatitude = locationData['latitude'].toDouble();
+      double friendLongitude = locationData['longitude'].toDouble();
       Position myPosition = await _getCurrentLocation();
       distance = Geolocator.distanceBetween(
-        myPosition.latitude,
-        myPosition.longitude,
+        -21.740278062748935,
+        -41.32907519206362,
         friendLatitude,
         friendLongitude,
       );
-      callback(distance);
+      print("Distance: $distance meters");
+      callback(distance.round().toDouble());
     });
   }
 }

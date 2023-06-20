@@ -63,8 +63,7 @@ class Notifications {
         final screen = data['screen'];
         final info_users = data['info_users'];
         final room_id = data['room_id'];
-        print("WWWWWWW");
-        print(room_id);
+
         final prefs = await SharedPreferences.getInstance();
 
         if (info_users != null && info_users != 'none') {
@@ -121,20 +120,15 @@ class Notifications {
 
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
-    print("Background message received");
     // Implementar código específico da plataforma para mensagens em segundo plano
     // Verificar a plataforma e exibir uma notificação local em vez de navegar
     final data = message.data;
 
     final String name = data['name'];
     final String surname = data['familyName'];
-
     final screen = data['screen'];
-    print(data);
   }
 
   static Future<void> onSelectNotification(
-      NotificationResponse notificationResponse) async {
-    print("sdsssssssssssssssssssssssssss");
-  }
+      NotificationResponse notificationResponse) async {}
 }
