@@ -1,4 +1,5 @@
 import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/pages/ARScreen.dart';
 import 'package:findme/pages/LoadingScreen.dart';
 import 'package:findme/pages/Location/LocationConfirmation.dart';
 import 'package:findme/pages/Location/LiveLocationUpdates.dart';
@@ -48,7 +49,12 @@ class MyApp extends StatelessWidget {
       home: const LoadingScreen(),
       routes: {
         '/location-confirmation': (context) => LocationConfirmationPage(),
-        '/live_location_updates': (context) => LiveLocationUpdates(),
+        '/live_location_updates': (context) => ARScreen(
+            // remoteUserCoordinates: {
+            //   'latitude': -21.760701341596018,
+            //   'longitude': -41.33639318643789,
+            // },
+            ),
       },
       debugShowCheckedModeBanner: false,
     );

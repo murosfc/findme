@@ -45,7 +45,9 @@
     "yes": "Yes",
     "no": "No",
     "cancel": "Cancel",
-    "loading:": "Loading...", 
-    "request-location-title": "Location request",
-    "request-location-body": "The user %{name} {$surname} is requesting access to your current location."
+    "loading:": "Loading...",
+    "permissions-required-alert": "Permissions required",
+    "permissions-required-message": "This app requires camera and location permissions to function properly. \nPlease grant these permissions in your device settings.",
+    "is-distance": "is",
+    "away": "away"
 }

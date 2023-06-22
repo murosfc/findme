@@ -19,7 +19,7 @@ class _LiveLocationUpdatesState extends State<LiveLocationUpdates> {
       realTimeLocation = new RealTimeLocation();
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
-      realTimeLocation.getDistanceBetweenUsers(updateDistance);
+      // realTimeLocation.getDistanceBetweenUsers(updateDistance);
     });
   }
 

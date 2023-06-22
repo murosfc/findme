@@ -66,12 +66,15 @@ class Notifications {
 
         final prefs = await SharedPreferences.getInstance();
 
-        if (info_users != null && info_users != 'none') {
+        if ('room_id' == 'none') {
           // Salva as informações do solicitante para uso posterior, se necessário
           await prefs.setString('info_users', json.encode(info_users));
         } else if ('room_id' != 'none') {
           await prefs.setString('room_id', room_id);
-          await prefs.setString('info_users', json.encode(info_users));
+          final infoUsersJson = json.decode(info_users);
+
+          await prefs.setString(
+              'name_user', infoUsersJson['recipient']['name']);
         }
 
         if (screen != null && screen != 'none') {
