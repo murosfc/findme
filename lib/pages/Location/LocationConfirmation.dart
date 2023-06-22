@@ -51,6 +51,7 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
   }
 
   Future<void> _disconnect() async {
+    realTimeLocation.stopSharingLocation();
     realTimeLocation.disconnect();
   }
 

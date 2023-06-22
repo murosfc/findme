@@ -46,7 +46,7 @@ class _ARScreenState extends State<ARScreen> {
 
   late String? roomId = '';
   late RealTimeLocation realTimeLocation = RealTimeLocation();
-  late String userName = 'test';
+  late String userName = '';
 
   void _buidArrowPaths() {
     final int QUANTITY_OF_ARROWS = 4;
@@ -66,6 +66,13 @@ class _ARScreenState extends State<ARScreen> {
   void initState() {
     super.initState();
 
+    getRoom().then((_) {
+      realTimeLocation = new RealTimeLocation();
+      realTimeLocation.connect();
+      realTimeLocation.joinRoom(roomId);
+      realTimeLocation.getDistanceBetweenUsers(updateDistance);
+    });
+
     _orientationValues = List.filled(3, 0);
     _startAccelerometerListener();
 
@@ -75,27 +82,12 @@ class _ARScreenState extends State<ARScreen> {
         imageIndex = (imageIndex + 1) % rightArrows.length;
       });
     });
-    getRoom().then((_) {
-      realTimeLocation = new RealTimeLocation();
-      realTimeLocation.connect();
-      realTimeLocation.joinRoom(roomId);
-      realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });
   }
 
   Future<void> getRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    roomId = prefs.getString('room_id') ??
-        ''; // Assign an empty string if roomId is null
-
-    print("fsfsdfdsfd");
+    roomId = prefs.getString('room_id') ?? '';
     userName = prefs.getString('name_user') ?? '';
-    // print("AAAAAAAAAAA");
-    // Map<String, dynamic> userInfoJson = json.decode(usersInfo);
-
-    // print(userInfoJson['name_user']);
-    userName = userName;
-    //info_users
   }
 
   void _startAccelerometerListener() {
@@ -134,6 +126,10 @@ class _ARScreenState extends State<ARScreen> {
 
   Future<void> updateDistance(
       double newDistance, double remoteUserLongitude) async {
+    print("AAAAAAAAA");
+    print(newDistance);
+    print(remoteUserLongitude);
+
     setState(() {
       distanceBetweenUsers = newDistance;
       remoteUserLongitude = remoteUserLongitude;
@@ -240,7 +236,7 @@ class _ARScreenState extends State<ARScreen> {
     final double difference = remoteUserLongitude - angleDegrees;
 
     // Return true if the difference is less than or equal to 10 degrees.
-    return difference <= 2;
+    return difference <= 10;
   }
 
   Future<Uint8List> _loadImageFromUrl() async {

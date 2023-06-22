@@ -8,6 +8,8 @@ class RealTimeLocation {
   late IO.Socket socket;
   late Timer shareLocationTimer;
   late double distance = 0.0;
+  late double bearing = 0.0;
+
   String generateRoomId() {
     // Generate a random room ID
     String characters =
@@ -102,8 +104,17 @@ class RealTimeLocation {
         friendLatitude,
         friendLongitude,
       );
+
+      bearing = Geolocator.bearingBetween(
+        myPosition.latitude,
+        myPosition.longitude,
+        friendLatitude,
+        friendLongitude,
+      );
       print("Distance: $distance meters");
-      callback(distance.round().toDouble(), friendLongitude);
+      print("Angulacao: $bearing graus");
+
+      callback(distance.round().toDouble(), -43.33088486874001);
     });
   }
 }
