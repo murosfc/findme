@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:findme/model/RealTimeLocation.dart';
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
@@ -13,10 +16,6 @@ import 'package:sensors_plus/sensors_plus.dart';
 import 'package:findme/model/Calculation.dart';
 
 class ARScreen extends StatefulWidget {
-  final String userName;
-  final Map<String, double> remoteUserCoordinates;
-  const ARScreen({required this.userName, required this.remoteUserCoordinates});
-
   @override
   _ARScreenState createState() => _ARScreenState();
 }
@@ -24,8 +23,9 @@ class ARScreen extends StatefulWidget {
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
-  late ArCoreNode imageNode;  
+  late ArCoreNode imageNode;
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
+
   bool _hasNodeBeenAddedSecondTime = false;
 
   //Arrow drawing variables
@@ -39,11 +39,14 @@ class _ARScreenState extends State<ARScreen> {
   late Positioned arrow;
   late Timer timer;
 
-  //Geolocation variables
-  late Map<String, double> localUserCoordinates, remoteUserCoordinates;
-  double distanceBetweenUsers = 0;
-  final Calculation _calculation = Calculation();
+  double distanceBetweenUsers = 0.0;
+  double remoteUserLongitude = 0.0;
+
   late List<double> _orientationValues;
+
+  late String? roomId = '';
+  late RealTimeLocation realTimeLocation = RealTimeLocation();
+  late String userName = '';
 
   void _buidArrowPaths() {
     final int QUANTITY_OF_ARROWS = 4;
@@ -61,21 +64,30 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
 
-    localUserCoordinates = {};
-    _updateLocalUserCoordinates();
-    remoteUserCoordinates = widget.remoteUserCoordinates;
+    getRoom().then((_) {
+      realTimeLocation = new RealTimeLocation();
+      realTimeLocation.connect();
+      realTimeLocation.joinRoom(roomId);
+      realTimeLocation.getDistanceBetweenUsers(updateDistance);
+    });
 
     _orientationValues = List.filled(3, 0);
     _startAccelerometerListener();
 
     timer =
         Timer.periodic(Duration(milliseconds: IMAGE_CHANGE_PERIOD_MS), (timer) {
-      setState(() {        
+      setState(() {
         imageIndex = (imageIndex + 1) % rightArrows.length;
       });
     });
+  }
+
+  Future<void> getRoom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    roomId = prefs.getString('room_id') ?? '';
+    userName = prefs.getString('name_user') ?? '';
   }
 
   void _startAccelerometerListener() {
@@ -87,7 +99,7 @@ class _ARScreenState extends State<ARScreen> {
         _orientationValues = <double>[event.x, event.y, event.z];
         if (_isCameraFacingCoordinates() && !_hasNodeBeenAddedSecondTime) {
           _hasNodeBeenAddedSecondTime = true;
-          _addImageNode();          
+          _addImageNode();
         }
       });
     });
@@ -112,36 +124,23 @@ class _ARScreenState extends State<ARScreen> {
     }
   }
 
-  Future<void> _updateLocalUserCoordinates() async {
-    LocationAccuracyStatus accuracyStatus =
-        await Geolocator.getLocationAccuracy();
-    LocationAccuracy desiredAccuracy;
-    if (accuracyStatus == LocationAccuracyStatus.reduced) {
-      desiredAccuracy = LocationAccuracy.lowest;
-    } else {
-      desiredAccuracy = LocationAccuracy.high;
-    }
-    Position position =
-        await Geolocator.getCurrentPosition(desiredAccuracy: desiredAccuracy);
+  Future<void> updateDistance(
+      double newDistance, double remoteUserLongitude) async {
+    print("AAAAAAAAA");
+    print(newDistance);
+    print(remoteUserLongitude);
 
     setState(() {
-      localUserCoordinates['latitude'] = position.latitude;
-      localUserCoordinates['longitude'] = position.longitude;
-
-      distanceBetweenUsers = _calculation.calculateDistanceBetweenUsers(
-          remoteUserCoordinates, localUserCoordinates);
+      distanceBetweenUsers = newDistance;
+      remoteUserLongitude = remoteUserLongitude;
     });
-  }
-
-  static void updateRemoteUserLocation(
-      Map<String, double> remoteUserCoordinates) {
-    remoteUserCoordinates = remoteUserCoordinates;
   }
 
   @override
   void dispose() {
     timer.cancel();
     arCoreController.dispose();
+    realTimeLocation.disconnect();
     super.dispose();
   }
 
@@ -181,7 +180,7 @@ class _ARScreenState extends State<ARScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${'finding'.i18n()} ${widget.userName}"),
+        title: Text("${'finding'.i18n()} ${userName}"),
       ),
       body: Stack(
         children: [
@@ -197,7 +196,7 @@ class _ARScreenState extends State<ARScreen> {
               left: 10,
               right: 10,
               child: Text(
-                '${widget.userName} ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}',
+                '${userName} ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
@@ -219,8 +218,8 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _onArCoreViewCreated(ArCoreController controller) {
-    arCoreController = controller;   
-    _addImageNode();       
+    arCoreController = controller;
+    _addImageNode();
   }
 
   bool _isCameraFacingCoordinates() {
@@ -234,22 +233,21 @@ class _ARScreenState extends State<ARScreen> {
     final double angleDegrees = angle * (180 / pi);
 
     // Get the difference between the camera direction and the coordinates.
-    final double difference =
-        remoteUserCoordinates['longitude']! - angleDegrees;
+    final double difference = remoteUserLongitude - angleDegrees;
 
     // Return true if the difference is less than or equal to 10 degrees.
     return difference <= 10;
   }
 
-    Future<Uint8List> _loadImageFromUrl() async {
+  Future<Uint8List> _loadImageFromUrl() async {
     const String imageUrl =
         'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
     final response = await http.get(Uri.parse(imageUrl));
     return response.bodyBytes;
   }
 
-  void _addImageNode() async{
-    const IMG_SIZE = 512;    
+  void _addImageNode() async {
+    const IMG_SIZE = 512;
     Uint8List imageBytes = await _loadImageFromUrl();
 
     final image = ArCoreImage(
@@ -266,22 +264,21 @@ class _ARScreenState extends State<ARScreen> {
           vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
       scale: vector.Vector3(0.2, 0.2, 0.2),
     );
-    if(_hasNodeBeenAddedSecondTime){
-      arCoreController.addArCoreNode(imageNode);      
+    if (_hasNodeBeenAddedSecondTime) {
+      arCoreController.addArCoreNode(imageNode);
     }
   }
 
   void showArrow(String direcao) {
     if (_isCameraFacingCoordinates()) {
       showRightArrow = showLeftArrow = showDownArrow = showUpArrow = false;
-    }else{
-    setState(() {
-      showRightArrow = direcao == 'right';
-      showLeftArrow = direcao == 'left';
-      showDownArrow = direcao == 'down';
-      showUpArrow = direcao == 'up';
-    });
+    } else {
+      setState(() {
+        showRightArrow = direcao == 'right';
+        showLeftArrow = direcao == 'left';
+        showDownArrow = direcao == 'down';
+        showUpArrow = direcao == 'up';
+      });
     }
-  }  
-
+  }
 }

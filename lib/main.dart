@@ -1,5 +1,9 @@
 import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/pages/ARScreen.dart';
 import 'package:findme/pages/LoadingScreen.dart';
+import 'package:findme/pages/Location/LocationConfirmation.dart';
+import 'package:findme/pages/Location/LiveLocationUpdates.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:localization/localization.dart';
@@ -16,12 +20,13 @@ void main() async {
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
+  await FirebaseMessaging.instance.getInitialMessage();
+
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +47,10 @@ class MyApp extends StatelessWidget {
         Locale('pt', 'BR'),
       ],
       home: const LoadingScreen(),
+      routes: {
+        '/location-confirmation': (context) => LocationConfirmationPage(),
+        '/live_location_updates': (context) => ARScreen(),
+      },
       debugShowCheckedModeBanner: false,
     );
   }

@@ -1,12 +1,13 @@
-import 'dart:ui';
-
 import 'package:findme/colors/VisualIdColors.dart';
-import 'package:findme/pages/ARScreen.dart';
+import 'package:findme/model/LocationHandler.dart';
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../api/ResponseStatusCode.dart';
 import '../components/AddContact.dart';
 import '../model/Contact.dart';
+import '../model/Notifications.dart';
 import '../model/User.dart';
 import '../components/MainDrawer.dart';
 import '../components/SearchBar.dart';
@@ -35,6 +36,16 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   void initState() {
     super.initState();
     loadContactList();
+
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      Notifications.requestFirebaseMessagingPermission();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    Notifications.initInfo(context);
   }
 
   Future<void> loadContactList() async {
@@ -65,18 +76,23 @@ class _FindnMeHomeState extends State<FindnMeHome> {
 
   Future<void> handleSelectedUserOption(String value, Contact contact) async {
     if (value == 'request_location') {
-      //o código abaixo é apenas para testa a AR, precisa adicionar todo a conversa com o servidor
-      Map<String, double> remoteUserCoordinates = {};
-      remoteUserCoordinates['latitude'] = -14;
-      remoteUserCoordinates['longitude'] = -51;
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => ARScreen(
-                  userName: "${contact.name} ${contact.familyName}",
-                  remoteUserCoordinates: remoteUserCoordinates,
-                )),
-      );
+      PermissionStatus status = await Permission.location.request();
+      if (status.isGranted) {
+        int responseStatusCode =
+            await LocationHandler().requestLocation(contact);
+
+        if (responseStatusCode == ResponseStatusCode.SUCESS) {
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => FindnMeHome()),
+          );
+        } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+          print("Error");
+        } else {
+          print("Error");
+        }
+      }
     } else if (value == 'block_user') {
       //bloquear o usuario
     } else if (value == 'delete_user') {

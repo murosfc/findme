@@ -9,6 +9,7 @@ import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:localization/localization.dart';
 import 'Contact.dart';
+import 'Notifications.dart';
 
 class User {
   static final User _myUser = User._internal();
@@ -27,6 +28,8 @@ class User {
 
   Future<void> storeCredentials(Response response) async {
     final Map<String, dynamic> data = json.decode(response.body);
+    print(data['token']);
+    print(data['token']);
     await _storage.write(
         key: 'token', value: data['token'], aOptions: _getAndroidOptions());
     await _storage.write(
@@ -145,6 +148,10 @@ class User {
     Response response = await http
         .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});
     return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;
+  }
+
+  Future<String?> getJwtToken() async {
+    return _readSecureData("token");
   }
 
   Future<String?> getFcmToken() async {
