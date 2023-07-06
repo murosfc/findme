@@ -23,7 +23,7 @@ class RealTimeLocation {
 
   void connect() {
     socket = IO.io(
-        'https://findnme-location-real-time.up.railway.app/', <String, dynamic>{
+        'https://findme-real-time-location.onrender.com/', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });
@@ -114,7 +114,7 @@ class RealTimeLocation {
       print("Distance: $distance meters");
       print("Angulacao: $bearing graus");
 
-      callback(distance.round().toDouble(), -43.33088486874001);
+      callback(distance.round().toDouble(), friendLongitude);
     });
   }
 }

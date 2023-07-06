@@ -25,7 +25,9 @@ class LocationHandler {
 
   Future<int> locationFeedBack(bool shared_location, String room_id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    print("RRRRRRRRRRR");
     final info_users = prefs.getString('info_users');
+    print(info_users);
     if (info_users != null) {
       final response_data = json.decode(info_users);
       Map<String, dynamic> jsonData = {
