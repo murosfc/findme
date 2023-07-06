@@ -28,7 +28,9 @@ class User {
 
   Future<void> storeCredentials(Response response) async {
     final Map<String, dynamic> data = json.decode(response.body);
-    print(data['token']);
+    print("aAAA");
+    print(data['fcmToken']);
+    print("bbbb");
     print(data['token']);
     await _storage.write(
         key: 'token', value: data['token'], aOptions: _getAndroidOptions());
