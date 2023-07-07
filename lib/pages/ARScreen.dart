@@ -45,6 +45,11 @@ class _ARScreenState extends State<ARScreen> {
   final Calculation _calculation = Calculation();
   late List<double> _orientationValues;
 
+  //Connection variables
+  late String? roomId = '';
+  late RealTimeLocation realTimeLocation = RealTimeLocation();
+  late String userName = '';
+
   void _buidArrowPaths() {
     final int QUANTITY_OF_ARROWS = 4;
     rightArrows = List<String>.filled(QUANTITY_OF_ARROWS, '');
@@ -63,6 +68,13 @@ class _ARScreenState extends State<ARScreen> {
   void initState() {
     super.initState(); 
 
+    getRoom().then((_) {
+      realTimeLocation = new RealTimeLocation();
+      realTimeLocation.connect();
+      realTimeLocation.joinRoom(roomId);
+      realTimeLocation.getDistanceBetweenUsers(updateDistance);
+    });
+
     localUserCoordinates = {};
     _updateLocalUserCoordinates();
     remoteUserCoordinates = widget.remoteUserCoordinates;
@@ -76,6 +88,12 @@ class _ARScreenState extends State<ARScreen> {
         imageIndex = (imageIndex + 1) % rightArrows.length;
       });
     });
+  }
+
+  Future<void> getRoom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    roomId = prefs.getString('room_id') ?? '';
+    userName = prefs.getString('name_user') ?? '';
   }
 
   void _startAccelerometerListener() {
@@ -142,6 +160,7 @@ class _ARScreenState extends State<ARScreen> {
   void dispose() {
     timer.cancel();
     arCoreController.dispose();
+    realTimeLocation.disconnect();
     super.dispose();
   }
 
