@@ -133,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
 
       int responseStatusCode = await User().login(_email, _password);
 
-      if (responseStatusCode == ResponseStatusCode.SUCESS) {
+      if (responseStatusCode == ResponseStatusCode.SUCCESS) {
         // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,

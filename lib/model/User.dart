@@ -27,11 +27,7 @@ class User {
   User._internal();
 
   Future<void> storeCredentials(Response response) async {
-    final Map<String, dynamic> data = json.decode(response.body);
-    print("aAAA");
-    print(data['fcmToken']);
-    print("bbbb");
-    print(data['token']);
+    final Map<String, dynamic> data = json.decode(response.body);    
     await _storage.write(
         key: 'token', value: data['token'], aOptions: _getAndroidOptions());
     await _storage.write(
@@ -56,7 +52,7 @@ class User {
         .encode({'email': email, 'password': password, 'fcmToken': fcmToken});
     Response response = await http.post(Uri.parse(UserDataApi.login),
         headers: {'Content-Type': 'application/json'}, body: bodyJson);
-    if (response.statusCode == ResponseStatusCode.SUCESS) {
+    if (response.statusCode == ResponseStatusCode.SUCCESS) {
       storeCredentials(response);
     }
     return response.statusCode;
@@ -67,6 +63,26 @@ class User {
     Response response = await http.post(Uri.parse(UserDataApi.registration),
         headers: {'Content-Type': 'application/json'}, body: bodyJson);
     return response.statusCode;
+  }
+
+  Future<bool> approveRequest(Contact contact) async {
+    print("approveRequest");
+    String? token = await _readSecureData("token");
+    if (token == null) {
+      logout();
+    } else {
+      String bodyJson = json.encode({'id': contact.id});
+      Response response = await http.post(Uri.parse(UserDataApi.authorizeContact),
+          body: bodyJson,
+          headers: {'token': token, "content-type": "application/json"});
+      print(response.statusCode);   
+      if (response.statusCode == ResponseStatusCode.SUCCESS) {
+        return true;
+      } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+        logout();         
+      }        
+    }
+    return false;
   }
 
   Future<String?> _readSecureData(String key) async {
@@ -84,7 +100,7 @@ class User {
       Response response = await http.post(Uri.parse(UserDataApi.addContact),
           body: bodyJson,
           headers: {'token': token, "content-type": "application/json"});
-      if (response.statusCode == ResponseStatusCode.SUCESS) {
+      if (response.statusCode == ResponseStatusCode.SUCCESS) {
         String jsonString = response.body;
         dynamic newContactJson = json.decode(jsonString);
         Contact newContact = Contact(
@@ -94,7 +110,7 @@ class User {
             newContactJson['pictureUrl']);
         return newContact;
       } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
-        _deleteAllSecureData();
+        logout();
         throw Exception('invalid-token'.i18n());
       } else if (response.statusCode == ResponseStatusCode.FORBIDDEN) {
         throw Exception('already-contact'.i18n());
@@ -120,7 +136,7 @@ class User {
         : url = "${UserDataApi.getContacts}$type";
     Response response =
         await http.get(Uri.parse(url), headers: {'token': token!});
-    if (response.statusCode == ResponseStatusCode.SUCESS) {
+    if (response.statusCode == ResponseStatusCode.SUCCESS) {
       String jsonString = response.body;
       List<dynamic> jsonList = json.decode(jsonString);
       for (var jsonObj in jsonList) {
@@ -135,10 +151,10 @@ class User {
   }
 
   void logout() {
-    _deleteAllSecureData();
+    deleteAllSecureData();
   }
 
-  Future<void> _deleteAllSecureData() async {
+  Future<void> deleteAllSecureData() async {
     await _storage.deleteAll(aOptions: _getAndroidOptions());
   }
 
@@ -171,4 +187,6 @@ class User {
   Future<String?> getPictureUrl() async {
     return _readSecureData("pictureUrl");
   }
+
+  
 }

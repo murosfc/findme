@@ -49,5 +49,11 @@
     "permissions-required-alert": "Permissions required",
     "permissions-required-message": "This app requires camera and location permissions to function properly. \nPlease grant these permissions in your device settings.",
     "is-distance": "is",
-    "away": "away"
+    "away": "away",
+    "request-location": "request location",
+    "block-contact": "block contact",
+    "unblock-contact": "unblock contact",
+    "delete-contact": "delete contact",
+    "approve-request": "approve request",
+    "remove-request": "remove request"    
 }

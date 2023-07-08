@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
@@ -12,10 +13,11 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 import 'package:findme/model/Calculation.dart';
 
+import '../model/RealTimeLocation.dart';
+
 class ARScreen extends StatefulWidget {
-  final String userName;
-  final Map<String, double> remoteUserCoordinates;
-  const ARScreen({required this.userName, required this.remoteUserCoordinates});
+  //final String userName;  
+  //const ARScreen({required this.userName});
 
   @override
   _ARScreenState createState() => _ARScreenState();
@@ -40,9 +42,8 @@ class _ARScreenState extends State<ARScreen> {
   late Timer timer;
 
   //Geolocation variables
-  late Map<String, double> localUserCoordinates, remoteUserCoordinates;
-  double distanceBetweenUsers = 0;
-  final Calculation _calculation = Calculation();
+  late Map<String, double> localUserCoordinates;
+  double distanceBetweenUsers = 0;  
   late List<double> _orientationValues;
 
   //Connection variables
@@ -69,15 +70,13 @@ class _ARScreenState extends State<ARScreen> {
     super.initState(); 
 
     getRoom().then((_) {
-      realTimeLocation = new RealTimeLocation();
+      realTimeLocation = RealTimeLocation();
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
     });
 
-    localUserCoordinates = {};
-    _updateLocalUserCoordinates();
-    remoteUserCoordinates = widget.remoteUserCoordinates;
+    localUserCoordinates = {};    
 
     _orientationValues = List.filled(3, 0);
     _startAccelerometerListener();
@@ -130,30 +129,15 @@ class _ARScreenState extends State<ARScreen> {
     }
   }
 
-  Future<void> _updateLocalUserCoordinates() async {
-    LocationAccuracyStatus accuracyStatus =
-        await Geolocator.getLocationAccuracy();
-    LocationAccuracy desiredAccuracy;
-    if (accuracyStatus == LocationAccuracyStatus.reduced) {
-      desiredAccuracy = LocationAccuracy.lowest;
-    } else {
-      desiredAccuracy = LocationAccuracy.high;
-    }
-    Position position =
-        await Geolocator.getCurrentPosition(desiredAccuracy: desiredAccuracy);
+   Future<void> updateDistance(double newDistance, double remoteUserLongitude) async {
+    print("AAAAAAAAA");
+    print(newDistance);
+    print(remoteUserLongitude);
 
     setState(() {
-      localUserCoordinates['latitude'] = position.latitude;
-      localUserCoordinates['longitude'] = position.longitude;
-
-      distanceBetweenUsers = _calculation.calculateDistanceBetweenUsers(
-          remoteUserCoordinates, localUserCoordinates);
+      distanceBetweenUsers = newDistance;
+      remoteUserLongitude = remoteUserLongitude;
     });
-  }
-
-  static void updateRemoteUserLocation(
-      Map<String, double> remoteUserCoordinates) {
-    remoteUserCoordinates = remoteUserCoordinates;
   }
 
   @override
@@ -200,7 +184,7 @@ class _ARScreenState extends State<ARScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("${'finding'.i18n()} ${widget.userName}"),
+        title: Text("${'finding'.i18n()} $userName"), 
       ),
       body: Stack(
         children: [
@@ -216,8 +200,7 @@ class _ARScreenState extends State<ARScreen> {
               left: 10,
               right: 10,
               child: Text(
-                '${widget.userName} ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}',
-                textAlign: TextAlign.center,
+                '$userName ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}', 
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
@@ -253,8 +236,7 @@ class _ARScreenState extends State<ARScreen> {
     final double angleDegrees = angle * (180 / pi);
 
     // Get the difference between the camera direction and the coordinates.
-    final double difference =
-        remoteUserCoordinates['longitude']! - angleDegrees;
+    final double difference = remoteUserLongitude - angleDegrees; //Em remoteUserLongitude preciso pegar a longitude do usuário remoto
 
     // Return true if the difference is less than or equal to 10 degrees.
     return difference <= 10;
@@ -292,7 +274,9 @@ class _ARScreenState extends State<ARScreen> {
 
   void showArrow(String direcao) {
     if (_isCameraFacingCoordinates()) {
-      showRightArrow = showLeftArrow = showDownArrow = showUpArrow = false;
+      setState(() {
+        showRightArrow = showLeftArrow = showDownArrow = showUpArrow = false;
+      });
     }else{
     setState(() {
       showRightArrow = direcao == 'right';

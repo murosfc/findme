@@ -236,7 +236,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       int responseStatusCode = await User().register(body);
-      if (responseStatusCode == ResponseStatusCode.SUCESS) {
+      if (responseStatusCode == ResponseStatusCode.SUCCESS) {
         _showRegistrationSuccessPopup();
       } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
         setState(() {

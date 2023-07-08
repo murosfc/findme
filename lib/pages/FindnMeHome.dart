@@ -27,7 +27,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
     Tab(text: 'contact-requests'.i18n()),
     Tab(text: 'pending'.i18n()),
     const Tab(icon: Icon(Icons.block)),
-  ];
+  ];    
 
   bool _isLoading = true;
   Contact _newContactAdd = Contact(0, '', '', '');
@@ -37,7 +37,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
     super.initState();
     loadContactList();
 
-    WidgetsBinding.instance?.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       Notifications.requestFirebaseMessagingPermission();
     });
   }
@@ -75,44 +75,95 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   }
 
   Future<void> handleSelectedUserOption(String value, Contact contact) async {
-    if (value == 'request_location') {
-      PermissionStatus status = await Permission.location.request();
-      if (status.isGranted) {
-        int responseStatusCode =
-            await LocationHandler().requestLocation(contact);
+    switch (value) {
+      case 'request_location':
+        PermissionStatus status = await Permission.location.request();
+        if (status.isGranted) {
+          int responseStatusCode =
+              await LocationHandler().requestLocation(contact);
 
-        if (responseStatusCode == ResponseStatusCode.SUCESS) {
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => FindnMeHome()),
-          );
-        } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
-          print("Error");
-        } else {
-          print("Error");
+          if (responseStatusCode == ResponseStatusCode.SUCCESS) {
+            // ignore: use_build_context_synchronously
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => FindnMeHome()),
+            );
+          } else if (responseStatusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+            print("Error");
+          } else {
+            print("Error");
+          }
         }
-      }
-    } else if (value == 'block_user') {
-      //bloquear o usuario
-    } else if (value == 'delete_user') {
-      //deletar o usuario
+        break;
+      case 'block_user':
+        //TODO
+        break;
+      case 'delete_contact':
+        //TODO
+        break;
+      case 'approve_request':
+        print ("ID do contato: $contact.id");
+        if (await User().approveRequest(contact)) {
+          setState(() {
+            requests.remove(contact);            
+          });
+        }
+        break;
+      case 'remove_request':
+        //TODO
+        break;
+      case 'unblock_user':
+        //TODO
+        break;
     }
-  }
+  }  
 
-  Widget _buildEmptyListPlaceholder() {
-    return Center(
-      child: Text(
-        'no-contacts'.i18n(),
-        style: const TextStyle(fontSize: 18.0),
-      ),
+  Widget buildContactsList(List<Contact> list, int activeTab) {           
+    List<PopupMenuEntry<String>> menuItems = [];
+
+    var requestLocation = PopupMenuItem<String>(
+      value: 'request_location',
+      child: Text('request-location'.i18n()),
     );
-  }
+    var blockUser = PopupMenuItem<String>(
+      value: 'block_contact',
+      child: Text('block-contact'.i18n()),
+    );
+    var deleteUser = PopupMenuItem<String>(
+      value: 'delete_contact',
+      child: Text('delete-contact'.i18n()),
+    ); 
 
-  Widget buildContactsList(List<Contact> list) {
-    if (list.isEmpty) {
-      return _buildEmptyListPlaceholder();
-    }
+    if (activeTab == 0) {      
+        menuItems.addAll([
+          requestLocation,
+          blockUser,
+          deleteUser,
+        ]);
+    }else if (activeTab == 1) {
+        menuItems.addAll([
+          PopupMenuItem<String>(
+            value: 'approve_request',
+            child: Text('approve-request'.i18n()),
+          ),
+          blockUser,
+          deleteUser,
+        ]);
+    }else if (activeTab == 2) {
+        menuItems.addAll([
+          PopupMenuItem<String>(
+            value: 'remove_request',
+            child: Text('remove-request'.i18n()),
+          ),
+        ]);
+      }else if (activeTab == 3) {
+        menuItems.addAll([
+          PopupMenuItem<String>(
+            value: 'unblock_contact',
+            child: Text('unblock-contact'.i18n()),
+          ),
+        ]);
+      }
     return ListView.separated(
       padding: const EdgeInsets.all(16.0),
       itemCount: list.length,
@@ -141,35 +192,13 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     const Spacer(),
-                    // IconButton(
-                    //   icon: const Icon(Icons.more_vert),
-                    //   onPressed: () {},
-                    // ),
-                    Container(
-                      child: PopupMenuButton<String>(
-                        itemBuilder: (BuildContext context) =>
-                            <PopupMenuEntry<String>>[
-                          const PopupMenuItem<String>(
-                            value: 'request_location',
-                            child: Text('Request location'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'block_user',
-                            child: Text('Block user'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'delete_user',
-                            child: Text('Delete User'),
-                          ),
-                          // Add more items as needed
-                        ],
-                        onSelected: (String value) {
-                          // Send the information of the user that was clicked on
-                          handleSelectedUserOption(value, list[index]);
-                        },
-                        icon: const Icon(Icons.more_vert),
-                      ),
-                    )
+                    PopupMenuButton<String>(
+                      itemBuilder: (BuildContext context) => menuItems,
+                      onSelected: (String value) {
+                        handleSelectedUserOption(value, list[index]);
+                      },
+                      icon: const Icon(Icons.more_vert),
+                    ),
                   ],
                 ),
               ),
@@ -181,7 +210,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
           const SizedBox(height: 10),
     );
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -207,7 +236,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
           bottom: TabBar(
             isScrollable: true,
             indicatorColor: Colors.white,
-            indicatorSize: TabBarIndicatorSize.label,
+            indicatorSize: TabBarIndicatorSize.label,            
             tabs: tabs,
           ),
         ),
@@ -218,13 +247,13 @@ class _FindnMeHomeState extends State<FindnMeHome> {
             : TabBarView(
                 children: [
                   normal.isEmpty
-                      ? Center(
+                      ? Center(                          
                           child: Text(
                             'no-contacts'.i18n(),
                             style: const TextStyle(color: Colors.white),
-                          ),
-                        )
-                      : buildContactsList(normal),
+                          ),                          
+                        )                        
+                      : buildContactsList(normal, 0),
                   requests.isEmpty
                       ? Center(
                           child: Text(
@@ -232,7 +261,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         )
-                      : buildContactsList(requests),
+                      : buildContactsList(requests, 1),
                   pending.isEmpty
                       ? Center(
                           child: Text(
@@ -240,7 +269,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         )
-                      : buildContactsList(pending),
+                      : buildContactsList(pending, 2),
                   blocked.isEmpty
                       ? Center(
                           child: Text(
@@ -248,7 +277,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         )
-                      : buildContactsList(blocked),
+                      : buildContactsList(blocked, 3),
                 ],
               ),
         drawer: Drawer(
