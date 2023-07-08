@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sensors_plus/sensors_plus.dart';
 
-import 'package:findme/model/Calculation.dart';
+//import 'package:findme/model/Calculation.dart';
 
 import '../model/RealTimeLocation.dart';
 
@@ -43,7 +43,8 @@ class _ARScreenState extends State<ARScreen> {
 
   //Geolocation variables
   late Map<String, double> localUserCoordinates;
-  double distanceBetweenUsers = 0;  
+  double distanceBetweenUsers = 0;
+  double remoteUserLongitude = 0;
   late List<double> _orientationValues;
 
   //Connection variables
