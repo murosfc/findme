@@ -37,7 +37,7 @@ class _ARScreenState extends State<ARScreen> {
       showRightArrow = false;
   int imageIndex = 0;
   late List<String> rightArrows, leftArrows, downArrows, upArrows;
-  final int IMAGE_CHANGE_PERIOD_MS = 100;
+  final int IMAGE_CHANGE_PERIOD_MS = 150;
   late Positioned arrow;
   late Timer timer;
 

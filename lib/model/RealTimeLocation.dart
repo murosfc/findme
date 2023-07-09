@@ -10,6 +10,8 @@ class RealTimeLocation {
   late double distance = 0.0;
   late double bearing = 0.0;
 
+  final _API_URL = 'https://findme-real-time-location.onrender.com/';
+
   String generateRoomId() {
     // Generate a random room ID
     String characters =
@@ -23,7 +25,7 @@ class RealTimeLocation {
 
   void connect() {
     socket = IO.io(
-        'https://findme-real-time-location.onrender.com/', <String, dynamic>{
+        _API_URL, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
     });

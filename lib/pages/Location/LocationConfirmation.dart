@@ -1,10 +1,13 @@
 import 'package:findme/model/RealTimeLocation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:localization/localization.dart';
 
 import '../../model/LocationHandler.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+
+import '../FindnMeHome.dart';
 
 class LocationConfirmationPage extends StatefulWidget {
   @override
@@ -19,33 +22,44 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Compartilhar Localização'),
+        title: Text('share-location'.i18n()),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Deseja compartilhar sua localização?'),
+            Text('share-location-question'.i18n()),
             ElevatedButton(
-              child: Text('Sim'),
+              child: Text('yes'.i18n()),
               onPressed: () {
                 _shareLocation(true);
               },
             ),
             ElevatedButton(
-              child: Text('Não'),
+              child: Text('no'.i18n()),
               onPressed: () {
                 _shareLocation(false);
+                _returnHome();
               },
             ),
             ElevatedButton(
-              child: Text('Desconectar'),
+              child: Text('disconnect'.i18n()),
               onPressed: () {
                 _disconnect();
+                _returnHome();
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  _returnHome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => FindnMeHome(),
       ),
     );
   }

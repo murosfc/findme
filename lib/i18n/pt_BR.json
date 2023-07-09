@@ -55,5 +55,8 @@
     "unblock-contact": "desbloquear contato",
     "delete-contact": "remover contato",
     "approve-request": "aprovar solicitação",
-    "remove-request": "remover solicitação"
+    "remove-request": "remover solicitação",
+    "share-location": "Compartilhar localização",
+    "share-location-question": "Deseja compartilhar sua localização?",
+    "disconnect": "Desconectar"
 }

@@ -1,5 +1,6 @@
 import 'package:findme/colors/VisualIdColors.dart';
 import 'package:findme/pages/ARScreen.dart';
+import 'package:findme/pages/FindnMeHome.dart';
 import 'package:findme/pages/LoadingScreen.dart';
 import 'package:findme/pages/Location/LocationConfirmation.dart';
 import 'package:findme/pages/Location/LiveLocationUpdates.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/location-confirmation': (context) => LocationConfirmationPage(),
         '/live_location_updates': (context) => ARScreen(),
+        '/home':(context) => FindnMeHome(),
       },
       debugShowCheckedModeBanner: false,
     );
