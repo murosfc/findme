@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/location-confirmation': (context) => LocationConfirmationPage(),
         '/live_location_updates': (context) => ARScreen(),
-        '/home':(context) => FindnMeHome(),
+        '/request-location': (context) => LocationConfirmationPage(),
       },
       debugShowCheckedModeBanner: false,
     );
