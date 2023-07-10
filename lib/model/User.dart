@@ -180,6 +180,10 @@ class User {
     return _readSecureData("name");
   }
 
+  String getFullName() {
+    return "${_readSecureData("name")} ${_readSecureData("familyName")}";
+  }
+
   Future<String?> getFamilyName() async {
     return _readSecureData("familyName");
   }

@@ -1,4 +1,5 @@
 {
+    "user": "Usuário",  
     "search-hint": "Pesquisar...",
     "add-contact": "Adicionar novo contato",
     "man-fav": "Gerenciar favoritos",
@@ -58,5 +59,6 @@
     "remove-request": "remover solicitação",
     "share-location": "Compartilhar localização",
     "share-location-question": "Deseja compartilhar sua localização?",
-    "disconnect": "Desconectar"
+    "disconnect": "Desconectar",
+    "ongoing-session": "Sessão em andamento"
 }

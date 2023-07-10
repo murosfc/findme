@@ -6,8 +6,10 @@ import 'package:localization/localization.dart';
 
 import '../model/User.dart';
 import '../pages/RegisterScreen.dart';
+import 'AddContact.dart';
 
-class MainDrawer extends StatelessWidget {
+class MainDrawer extends StatelessWidget {  
+  final String userName = User().getFullName();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,9 +45,12 @@ class MainDrawer extends StatelessWidget {
               Icons.add,
               color: Colors.white70,
             ),
-            title: Text("add-contact".i18n(),
+            title: Text("${"user".i18n() + userName}!",
                 style: const TextStyle(color: Colors.white70)),
           ),
+          const SizedBox(
+            height: 20.0,
+          ),         
           ListTile(
             onTap: () {},
             leading: const Icon(
@@ -61,7 +66,7 @@ class MainDrawer extends StatelessWidget {
               Icons.lock,
               color: Colors.white70,
             ),
-            title: Text("permissions".i18n(),
+            title: Text("ongoing-session".i18n(),
                 style: const TextStyle(color: Colors.white70)),
           ),
           ListTile(

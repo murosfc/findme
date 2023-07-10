@@ -37,7 +37,7 @@ class _ARScreenState extends State<ARScreen> {
       showRightArrow = false;
   int imageIndex = 0;
   late List<String> rightArrows, leftArrows, downArrows, upArrows;
-  final int IMAGE_CHANGE_PERIOD_MS = 150;
+  final int IMAGE_CHANGE_PERIOD_MS = 200;
   late Positioned arrow;
   late Timer timer;
 
@@ -79,7 +79,7 @@ class _ARScreenState extends State<ARScreen> {
 
     localUserCoordinates = {};    
 
-    _orientationValues = List.filled(3, 0);
+    _orientationValues = List.filled(2, 0);
     _startAccelerometerListener();
 
     timer =
@@ -99,10 +99,10 @@ class _ARScreenState extends State<ARScreen> {
   void _startAccelerometerListener() {
     _accelerometerSubscription =
         accelerometerEvents.listen((AccelerometerEvent event) {
-      _orientationValues = <double>[event.x, event.y, event.z];
+      _orientationValues = <double>[event.x, event.y];
       showArrow(_getArrowDirection());
       setState(() {
-        _orientationValues = <double>[event.x, event.y, event.z];
+        _orientationValues = <double>[event.x, event.y];
         if (_isCameraFacingCoordinates() && !_hasNodeBeenAddedSecondTime) {
           _hasNodeBeenAddedSecondTime = true;
           _addImageNode();          
@@ -156,20 +156,20 @@ class _ARScreenState extends State<ARScreen> {
             ? leftArrows[imageIndex]
             : showDownArrow
                 ? downArrows[imageIndex]
-                : upArrows[imageIndex];
-    return Positioned(
-      bottom: 0,
-      left: 0,
-      right: 0,
-      child: Transform.scale(
-        scale: 0.5,
-        child: Image.asset(
-          currentArrowtoShow,
-          fit: BoxFit.contain,
+                : showUpArrow? upArrows[imageIndex] : "";   
+      return Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Transform.scale(
+          scale: 0.5,
+          child: Image.asset(
+            currentArrowtoShow,
+            fit: BoxFit.contain,
+          ),
         ),
-      ),
-    );
-  }
+      );
+    }      
 
   @override
   Widget build(BuildContext context) {
@@ -229,8 +229,7 @@ class _ARScreenState extends State<ARScreen> {
   bool _isCameraFacingCoordinates() {
     // Get the direction of the camera.
     final double x = _orientationValues[0];
-    final double y = _orientationValues[1];
-    final double z = _orientationValues[2];
+    final double y = _orientationValues[1];    
 
     // Get the angle between the camera direction and the coordinates.
     final double angle = atan2(y, x);
@@ -239,8 +238,8 @@ class _ARScreenState extends State<ARScreen> {
     // Get the difference between the camera direction and the coordinates.
     final double difference = remoteUserLongitude - angleDegrees; //Em remoteUserLongitude preciso pegar a longitude do usuário remoto
 
-    // Return true if the difference is less than or equal to 10 degrees.
-    return difference <= 10;
+    // Return true if the difference is less than or equal to 30 degrees.
+    return difference <= 30;
   }
 
     Future<Uint8List> _loadImageFromUrl() async {

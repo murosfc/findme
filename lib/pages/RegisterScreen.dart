@@ -269,7 +269,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('status'),
-        content: Text('register-sucess'.i18n()),
+        content: Text('register-success'.i18n()),
         actions: [
           TextButton(
             onPressed: () {
