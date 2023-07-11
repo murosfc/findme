@@ -56,7 +56,7 @@ class RealTimeLocation {
     _sendLocation(roomId);
 
     // Start a timer to fetch the position at regular intervals
-    shareLocationTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+    shareLocationTimer = Timer.periodic(Duration(seconds: 20), (timer) {
       _sendLocation(roomId);
     });
   }
@@ -95,8 +95,10 @@ class RealTimeLocation {
   }
 
   Future<void> getDistanceBetweenUsers(
-      Function(double, double) callback) async {
-    socket.on('getFriendPosition', (locationData) async {
+      Function(double, Map<String, double>, Map<String, double>) callback) async {
+    socket.on('getFriendPosition', (locationData) async {  
+      Map<String, double> thisDevicePosition = {};    
+      Map<String, double> friendPosition = {};
       double friendLatitude = locationData['latitude'].toDouble();
       double friendLongitude = locationData['longitude'].toDouble();
       Position myPosition = await _getCurrentLocation();
@@ -113,10 +115,14 @@ class RealTimeLocation {
         friendLatitude,
         friendLongitude,
       );
+      thisDevicePosition['latitude'] = myPosition.latitude;
+      thisDevicePosition['longitude'] = myPosition.longitude;
+      friendPosition['latitude'] = friendLatitude;
+      friendPosition['longitude'] = friendLongitude;
       print("Distance: $distance meters");
       print("Angulacao: $bearing graus");
 
-      callback(distance.round().toDouble(), friendLongitude);
+      callback(distance.round().toDouble(), thisDevicePosition, friendPosition);
     });
   }
 }

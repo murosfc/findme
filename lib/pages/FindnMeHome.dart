@@ -176,7 +176,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
               ListTile(
                 leading: CircleAvatar(
                   backgroundColor: VisualIdColors.colorGreen(),
-                  backgroundImage: NetworkImage(list[index].pictureURL),
+                  //backgroundImage: NetworkImage(list[index].pictureURL), adicionar depois de implementar o login do google para salvar a foto do usuário
                   child: Text(
                     list[index].pictureURL == ""
                         ? list[index].getFirstNamesLetters()
