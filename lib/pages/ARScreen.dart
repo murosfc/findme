@@ -39,6 +39,9 @@ class _ARScreenState extends State<ARScreen> {
 
   //controlador da seta
   double _heading = 0.0;
+
+  //imagem renderizar AR
+  late Uint8List imageBytes;
  
   @override
   void initState() {
@@ -49,8 +52,10 @@ class _ARScreenState extends State<ARScreen> {
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });  
-    
+    });
+
+    _loadImageFromUrl();
+
   _orientationValues = List.filled(2, 0);
   _startAccelerometerListener();     
   }
@@ -88,23 +93,22 @@ class _ARScreenState extends State<ARScreen> {
 
   void _startAccelerometerListener() {
     _accelerometerSubscription =
-        accelerometerEvents.listen((AccelerometerEvent event) {
-      _orientationValues = <double>[event.x, event.y];      
+        accelerometerEvents.listen((AccelerometerEvent event) {         
       setState(() {
         _heading = _calculateHeading();
         _orientationValues = <double>[event.x, event.y];
         if (_isCameraFacingCoordinates()) {          
-          //_addImageNode();          
-        }
+          _addImageNode();          
+        } 
       });
     });
   } 
 
   Future<void> updateDistance(double newDistance, Map<String, double> localUserCoordinates, Map<String, double> remoteUserCoordinates) async {
-      setState(() {
-      distanceBetweenUsers = newDistance;
       this.localUserCoordinates = localUserCoordinates;
-      this.remoteUserCoordinates = remoteUserCoordinates;      
+      this.remoteUserCoordinates = remoteUserCoordinates; 
+      setState(() {
+        distanceBetweenUsers = newDistance;           
     });
   }
 
@@ -130,10 +134,10 @@ class _ARScreenState extends State<ARScreen> {
       ),
       body: Stack(
         children: [
-          /*ArCoreView(
+          ArCoreView(
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
-          ),*/
+          ),
           Positioned(
             bottom: 0,
             left: 0,
@@ -176,7 +180,7 @@ class _ARScreenState extends State<ARScreen> {
 
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;   
-    //_addImageNode();       
+    _addImageNode();       
   }
 
   bool _isCameraFacingCoordinates() {
@@ -198,16 +202,15 @@ class _ARScreenState extends State<ARScreen> {
   }
   
 
-  Future<Uint8List> _loadImageFromUrl() async {
+  _loadImageFromUrl() async {
     const String imageUrl =
         'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
     final response = await http.get(Uri.parse(imageUrl));
-    return response.bodyBytes;
+    imageBytes = response.bodyBytes;
   }
 
   void _addImageNode() async{
-    const IMG_SIZE = 512;    
-    Uint8List imageBytes = await _loadImageFromUrl();
+    const IMG_SIZE = 512;     
 
     final image = ArCoreImage(
       bytes: imageBytes,

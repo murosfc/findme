@@ -4,11 +4,13 @@ import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class RealTimeLocation {
+class RealTimeLocation{
   late IO.Socket socket;
-  late Timer shareLocationTimer;
+  late StreamSubscription<Position> positionStreamSubscription;
   late double distance = 0.0;
   late double bearing = 0.0;
+  final LocationSettings locationSettings = const LocationSettings( accuracy: LocationAccuracy.high, distanceFilter: 1);
+
 
   final _API_URL = 'https://findme-real-time-location.onrender.com/';
 
@@ -25,10 +27,12 @@ class RealTimeLocation {
 
   void connect() {
     socket = IO.io(
-        _API_URL, <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': false,
-    });
+      _API_URL,
+      <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+      },
+    );
     socket.connect();
   }
 
@@ -51,39 +55,44 @@ class RealTimeLocation {
     socket.emit('close');
   }
 
-  void shareLocation(roomId) {
-    // Fetch the initial position immediately
-    _sendLocation(roomId);
-
-    // Start a timer to fetch the position at regular intervals
-    shareLocationTimer = Timer.periodic(Duration(seconds: 20), (timer) {
-      _sendLocation(roomId);
+  void shareLocation(roomId) async{
+    _getCurrentLocation().then((position) {
+      _sendLocation(roomId, position);
     });
+
+    positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
+    (Position? position) {
+      position != null ? _sendLocation(roomId, position) : print('Localização nula');        
+    });   
+    
   }
 
   void stopSharingLocation() {
-    if (shareLocationTimer != null) {
-      shareLocationTimer.cancel();
-      print('Stopped sharing location');
-    }
+    positionStreamSubscription.cancel();
+    print('Stopped sharing location');
   }
 
   Future<Position> _getCurrentLocation() async {
-    LocationAccuracyStatus accuracyStatus =
-        await Geolocator.getLocationAccuracy();
-    LocationAccuracy desiredAccuracy;
-    if (accuracyStatus == LocationAccuracyStatus.reduced) {
-      desiredAccuracy = LocationAccuracy.lowest;
-    } else {
-      desiredAccuracy = LocationAccuracy.high;
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
     }
-    Position position =
-        await Geolocator.getCurrentPosition(desiredAccuracy: desiredAccuracy);
-    return position;
+
+    if (permission == LocationPermission.deniedForever) {
+      throw 'Location permission denied forever. Please enable it in the app settings.';
+    }
+
+    if (permission == LocationPermission.whileInUse ||
+        permission == LocationPermission.always) {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    }
+
+    throw 'Location permission denied.';
   }
 
-  void _sendLocation(String roomId) async {
-    Position position = await _getCurrentLocation();
+  void _sendLocation(String roomId, Position position) {
     Map<String, dynamic> locationUpdate = {
       'room_id': roomId,
       'location_data': {
@@ -94,10 +103,10 @@ class RealTimeLocation {
     socket.emit('shareLocation', locationUpdate);
   }
 
-  Future<void> getDistanceBetweenUsers(
-      Function(double, Map<String, double>, Map<String, double>) callback) async {
-    socket.on('getFriendPosition', (locationData) async {  
-      Map<String, double> thisDevicePosition = {};    
+  Future<void> getDistanceBetweenUsers(Function(
+          double, Map<String, double>, Map<String, double>) callback) async {
+    socket.on('getFriendPosition', (locationData) async {
+      Map<String, double> thisDevicePosition = {};
       Map<String, double> friendPosition = {};
       double friendLatitude = locationData['latitude'].toDouble();
       double friendLongitude = locationData['longitude'].toDouble();
