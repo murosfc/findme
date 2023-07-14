@@ -105,8 +105,8 @@ class _ARScreenState extends State<ARScreen> {
   } 
 
   Future<void> updateDistance(double newDistance, Map<String, double> localUserCoordinates, Map<String, double> remoteUserCoordinates) async {
-      this.localUserCoordinates = localUserCoordinates;
-      this.remoteUserCoordinates = remoteUserCoordinates; 
+      // this.localUserCoordinates = localUserCoordinates;
+      // this.remoteUserCoordinates = remoteUserCoordinates; 
       setState(() {
         distanceBetweenUsers = newDistance;           
     });
