@@ -3,7 +3,6 @@ import 'package:findme/pages/ARScreen.dart';
 import 'package:findme/pages/FindnMeHome.dart';
 import 'package:findme/pages/LoadingScreen.dart';
 import 'package:findme/pages/Location/LocationConfirmation.dart';
-import 'package:findme/pages/Location/LiveLocationUpdates.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

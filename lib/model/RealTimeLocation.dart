@@ -4,13 +4,13 @@ import 'dart:math';
 import 'package:geolocator/geolocator.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-class RealTimeLocation{
+class RealTimeLocation {
   late IO.Socket socket;
   late StreamSubscription<Position> positionStreamSubscription;
   late double distance = 0.0;
   late double bearing = 0.0;
-  final LocationSettings locationSettings = const LocationSettings( accuracy: LocationAccuracy.high, distanceFilter: 1);
-
+  final LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high, distanceFilter: 1);
 
   final _API_URL = 'https://findme-real-time-location.onrender.com/';
 
@@ -55,16 +55,18 @@ class RealTimeLocation{
     socket.emit('close');
   }
 
-  void shareLocation(roomId) async{
+  void shareLocation(roomId) async {
     _getCurrentLocation().then((position) {
       _sendLocation(roomId, position);
     });
 
-    positionStreamSubscription = Geolocator.getPositionStream(locationSettings: locationSettings).listen(
-    (Position? position) {
-      position != null ? _sendLocation(roomId, position) : print('Localização nula');        
-    });   
-    
+    positionStreamSubscription =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
+            .listen((Position? position) {
+      position != null
+          ? _sendLocation(roomId, position)
+          : print('Localização nula');
+    });
   }
 
   void stopSharingLocation() {
@@ -103,8 +105,8 @@ class RealTimeLocation{
     socket.emit('shareLocation', locationUpdate);
   }
 
-  Future<void> getDistanceBetweenUsers(Function(
-          double, Map<String, double>, Map<String, double>) callback) async {
+  Future<void> getDistanceBetweenUsers(
+      Function(double, double, double) callback) async {
     socket.on('getFriendPosition', (locationData) async {
       Map<String, double> thisDevicePosition = {};
       Map<String, double> friendPosition = {};
@@ -131,7 +133,7 @@ class RealTimeLocation{
       print("Distance: $distance meters");
       print("Angulacao: $bearing graus");
 
-      callback(distance.round().toDouble(), thisDevicePosition, friendPosition);
+      callback(distance.round().toDouble(), bearing, friendLongitude);
     });
   }
 }

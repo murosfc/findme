@@ -79,9 +79,9 @@ class Notifications {
 
         if (screen != null && screen != 'none') {
           if (screen == 'request_location') {
-            Navigator.pushNamed(context, '/location-confirmation');
+            Navigator.pushReplacementNamed(context, '/location-confirmation');
           } else if (screen == 'live_location_updates') {
-            Navigator.pushNamed(context, '/live_location_updates');
+            Navigator.pushReplacementNamed(context, '/live_location_updates');
           }
         }
 

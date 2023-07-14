@@ -86,8 +86,6 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
         realTimeLocation.shareLocation(roomId);
         int responseStatusCode =
             await LocationHandler().locationFeedBack(true, roomId);
-
-        print(responseStatusCode);
       }
     } else {
       int responseStatusCode =
