@@ -106,13 +106,14 @@ class RealTimeLocation {
   }
 
   Future<void> getDistanceBetweenUsers(
-      Function(double, double, double) callback) async {
-    socket.on('getFriendPosition', (locationData) async {
-      Map<String, double> thisDevicePosition = {};
-      Map<String, double> friendPosition = {};
+      Function(double, double, double, double,) callback) async {
+    socket.on('getFriendPosition', (locationData) async {      
+      
       double friendLatitude = locationData['latitude'].toDouble();
       double friendLongitude = locationData['longitude'].toDouble();
+      
       Position myPosition = await _getCurrentLocation();
+      
       distance = Geolocator.distanceBetween(
         myPosition.latitude,
         myPosition.longitude,
@@ -125,15 +126,10 @@ class RealTimeLocation {
         myPosition.longitude,
         friendLatitude,
         friendLongitude,
-      );
-      thisDevicePosition['latitude'] = myPosition.latitude;
-      thisDevicePosition['longitude'] = myPosition.longitude;
-      friendPosition['latitude'] = friendLatitude;
-      friendPosition['longitude'] = friendLongitude;
-      print("Distance: $distance meters");
-      print("Angulacao: $bearing graus");
-
-      callback(distance.round().toDouble(), bearing, friendLongitude);
+      );       
+      //print("Distance: $distance meters");
+      //print("Angulacao: $bearing graus");
+      callback(distance.round().toDouble(), bearing, friendLatitude, friendLongitude);
     });
   }
 }

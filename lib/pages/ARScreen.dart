@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
-import 'package:flutter_cube/flutter_cube.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:geolocator/geolocator.dart';
@@ -28,7 +27,8 @@ class _ARScreenState extends State<ARScreen> {
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
 
   //Geolocation variables
-  late Map<String, double> localUserCoordinates, remoteUserCoordinates;
+  double friendLatitude = 0;
+  double friendLongitude = 0;
   double distanceBetweenUsers = 0;
   double bearingBetweenUsers = 0;
 
@@ -39,12 +39,8 @@ class _ARScreenState extends State<ARScreen> {
   late RealTimeLocation realTimeLocation = RealTimeLocation();
   late String userName = '';
 
-  //controlador da seta
-  double _heading = 0.0;
-  double friendLongitude = 0.0;
-
-  //imagem renderizar AR
-  late Uint8List imageBytes;
+  //arrow variables
+  double _heading = 0;
 
   @override
   void initState() {
@@ -55,37 +51,10 @@ class _ARScreenState extends State<ARScreen> {
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });
-
-    _loadImageFromUrl();
+    });  
 
     _orientationValues = List.filled(2, 0);
     _startAccelerometerListener();
-  }
-
-  double _calculateHeading() {
-    double destLat = remoteUserCoordinates['latitude'] ?? 0.0;
-    double destLong = remoteUserCoordinates['longitude'] ?? 0.0;
-
-    // Calcular a direção da bússola em relação à coordenada desejada
-    double currentLat = localUserCoordinates['latitude'] ?? 0.0;
-    double currentLong = localUserCoordinates['longitude'] ?? 0.0;
-
-    double deltaY = destLong - currentLong;
-    double deltaX = destLat - currentLat;
-
-    double angle = atan2(deltaY, deltaX) * (180 / pi);
-    double heading = angle - 90.0;
-
-    // Limitar a rotação entre 0 e 180 graus
-    if (heading < 0.0) {
-      heading += 360.0;
-    }
-    if (heading > 180.0) {
-      heading -= 180.0;
-    }
-
-    return heading;
   }
 
   Future<void> getRoom() async {
@@ -97,24 +66,23 @@ class _ARScreenState extends State<ARScreen> {
   void _startAccelerometerListener() {
     _accelerometerSubscription =
         accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        _heading = _calculateHeading();
-        _orientationValues = <double>[event.x, event.y];
-        if (_isCameraFacingCoordinates()) {
+      _orientationValues = <double>[event.x, event.y];      
+      _heading = _calculateHeading();      
+      if (_isCameraFacingCoordinates()) {
+        setState(() {
           _addImageNode();
-        }
-      });
+        });
+      }
     });
   }
 
-  Future<void> updateDistance(
-      double newDistance, double newBearing, double friendLongitude) async {
-    // this.localUserCoordinates = localUserCoordinates;
-    // this.remoteUserCoordinates = remoteUserCoordinates;
+  Future<void> updateDistance(double newDistance, double newBearing,
+      double remoteLatitude, double remoteLongitude) async {
     setState(() {
       distanceBetweenUsers = newDistance;
       bearingBetweenUsers = newBearing;
-      friendLongitude = friendLongitude;
+      friendLatitude = remoteLatitude;
+      friendLongitude = remoteLongitude;
     });
   }
 
@@ -144,18 +112,20 @@ class _ARScreenState extends State<ARScreen> {
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.center,
-              child: Transform.rotate(
-                angle: bearingBetweenUsers,
-                child: Image.asset('assets/images/arrow.png', width: 200),
-              ),
-            ),
-          ),
+          _heading > 0
+              ? Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Transform.rotate(
+                      angle: _heading,
+                      child: Image.asset('assets/images/arrow.png', width: 200),
+                    ),
+                  ),
+                )
+              : Container(),
           Visibility(
             visible: distanceBetweenUsers > 0,
             child: Positioned(
@@ -188,35 +158,59 @@ class _ARScreenState extends State<ARScreen> {
     _addImageNode();
   }
 
+  double _calculateHeading() {  
+    print('friendLatitude: $friendLatitude');
+    print('friendLongitude: $friendLongitude');  
+    if (friendLatitude == 0 ||
+        friendLongitude  == 0) {
+      return -1; // Not enough data to determine facing direction
+    } 
+
+    double deltaY = friendLongitude - _orientationValues[1];
+    double deltaX = friendLatitude - _orientationValues[0];
+
+    double heading = atan2(deltaY, deltaX) * (180 / pi); //angle in degrees
+
+    //mantém a seta apontada sempre buscando o giro da câmera
+    if (heading > 0) {
+      return heading;
+    }
+    if (heading < 0 && heading < -90) {
+      return 0;
+    }
+    return 180;
+  }
+
   bool _isCameraFacingCoordinates() {
+    if (friendLatitude == 0 ||
+        friendLongitude  == 0) {
+      return false; // Not enough data to determine facing direction
+    } 
+
     // Get the direction of the camera.
     final double x = _orientationValues[0];
     final double y = _orientationValues[1];
 
     // Get the angle between the camera direction and the coordinates.
-    final double angle = atan2(y, x);
-    final double angleDegrees = angle * (180 / pi);
+    final double angle = atan2(y, x); //angle in radians
+    final double angleDegrees = angle * (180 / pi); //angle in degrees
+    
+    final double difference = friendLongitude - angleDegrees;
 
-    // double remoteUserLongitude = remoteUserCoordinates['longitude'] ?? 0.0;
-    double remoteUserLongitude = friendLongitude ?? 0.0;
-
-    // Get the difference between the camera direction and the coordinates.
-    final double difference = remoteUserLongitude -
-        angleDegrees; //Em remoteUserLongitude preciso pegar a longitude do usuário remoto
-
-    // Return true if the difference is less than or equal to 30 degrees.
-    return difference <= 30;
+    // Return true if the difference is less than or equal to 10 degrees.
+    return difference <= 10;
   }
 
-  _loadImageFromUrl() async {
+  Future<Uint8List> _loadImageFromUrl() async {
     const String imageUrl =
         'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
     final response = await http.get(Uri.parse(imageUrl));
-    imageBytes = response.bodyBytes;
+    return response.bodyBytes;
   }
 
   void _addImageNode() async {
     const IMG_SIZE = 512;
+    Uint8List imageBytes = await _loadImageFromUrl();
 
     final image = ArCoreImage(
       bytes: imageBytes,
@@ -231,8 +225,10 @@ class _ARScreenState extends State<ARScreen> {
       rotation:
           vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
       scale: vector.Vector3(0.2, 0.2, 0.2),
+      name: 'user-logo',
     );
     if (_isCameraFacingCoordinates()) {
+      arCoreController.removeNode(nodeName: imageNode.name);
       arCoreController.addArCoreNode(imageNode);
     }
   }
