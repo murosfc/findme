@@ -51,7 +51,7 @@ class _ARScreenState extends State<ARScreen> {
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });  
+    });
 
     _orientationValues = List.filled(2, 0);
     _startAccelerometerListener();
@@ -66,13 +66,16 @@ class _ARScreenState extends State<ARScreen> {
   void _startAccelerometerListener() {
     _accelerometerSubscription =
         accelerometerEvents.listen((AccelerometerEvent event) {
-      _orientationValues = <double>[event.x, event.y];      
-      _heading = _calculateHeading();      
+      _orientationValues = <double>[event.x, event.y];
+      _heading = _calculateHeading();
       if (_isCameraFacingCoordinates()) {
         setState(() {
           _addImageNode();
         });
       }
+      setState(() {
+        _heading;
+      });
     });
   }
 
@@ -81,8 +84,10 @@ class _ARScreenState extends State<ARScreen> {
     setState(() {
       distanceBetweenUsers = newDistance;
       bearingBetweenUsers = newBearing;
-      friendLatitude = remoteLatitude;
-      friendLongitude = remoteLongitude;
+      if (remoteLatitude != 0 && remoteLongitude != 0) {
+        friendLatitude = remoteLatitude;
+        friendLongitude = remoteLongitude;
+      }
     });
   }
 
@@ -112,20 +117,18 @@ class _ARScreenState extends State<ARScreen> {
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
           ),
-          _heading > 0
-              ? Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Transform.rotate(
-                      angle: _heading,
-                      child: Image.asset('assets/images/arrow.png', width: 200),
-                    ),
-                  ),
-                )
-              : Container(),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.center,
+              child: Transform.rotate(
+                angle: _heading,
+                child: Image.asset('assets/images/arrow.png', width: 200),
+              ),
+            ),
+          ),
           Visibility(
             visible: distanceBetweenUsers > 0,
             child: Positioned(
@@ -158,14 +161,7 @@ class _ARScreenState extends State<ARScreen> {
     _addImageNode();
   }
 
-  double _calculateHeading() {  
-    print('friendLatitude: $friendLatitude');
-    print('friendLongitude: $friendLongitude');  
-    if (friendLatitude == 0 ||
-        friendLongitude  == 0) {
-      return -1; // Not enough data to determine facing direction
-    } 
-
+  double _calculateHeading() {    
     double deltaY = friendLongitude - _orientationValues[1];
     double deltaX = friendLatitude - _orientationValues[0];
 
@@ -182,10 +178,9 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   bool _isCameraFacingCoordinates() {
-    if (friendLatitude == 0 ||
-        friendLongitude  == 0) {
+    if (friendLatitude == 0 && friendLongitude == 0) {
       return false; // Not enough data to determine facing direction
-    } 
+    }
 
     // Get the direction of the camera.
     final double x = _orientationValues[0];
@@ -194,7 +189,7 @@ class _ARScreenState extends State<ARScreen> {
     // Get the angle between the camera direction and the coordinates.
     final double angle = atan2(y, x); //angle in radians
     final double angleDegrees = angle * (180 / pi); //angle in degrees
-    
+
     final double difference = friendLongitude - angleDegrees;
 
     // Return true if the difference is less than or equal to 10 degrees.
