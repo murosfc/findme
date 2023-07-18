@@ -13,6 +13,7 @@ import 'package:sensors_plus/sensors_plus.dart';
 
 //import 'package:findme/model/Calculation.dart';
 
+import '../colors/VisualIdColors.dart';
 import '../model/RealTimeLocation.dart';
 
 class ARScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _ARScreenState extends State<ARScreen> {
   late ArCoreController arCoreController;
   late ArCoreNode imageNode;
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
+  Uint8List imageBytes = Uint8List(0);
 
   //Geolocation variables
   double friendLatitude = 0;
@@ -45,7 +47,7 @@ class _ARScreenState extends State<ARScreen> {
   @override
   void initState() {
     super.initState();
-
+     
     getRoom().then((_) {
       realTimeLocation = RealTimeLocation();
       realTimeLocation.connect();
@@ -72,10 +74,7 @@ class _ARScreenState extends State<ARScreen> {
         setState(() {
           _addImageNode();
         });
-      }
-      setState(() {
-        _heading;
-      });
+      }     
     });
   }
 
@@ -84,6 +83,8 @@ class _ARScreenState extends State<ARScreen> {
     setState(() {
       distanceBetweenUsers = newDistance;
       bearingBetweenUsers = newBearing;
+      print("Friend Latitude received: $remoteLatitude");
+      print("Friend Longitude received: $remoteLongitude");
       if (remoteLatitude != 0 && remoteLongitude != 0) {
         friendLatitude = remoteLatitude;
         friendLongitude = remoteLongitude;
@@ -161,17 +162,17 @@ class _ARScreenState extends State<ARScreen> {
     _addImageNode();
   }
 
-  double _calculateHeading() {    
+  double _calculateHeading() {     
     double deltaY = friendLongitude - _orientationValues[1];
     double deltaX = friendLatitude - _orientationValues[0];
 
     double heading = atan2(deltaY, deltaX) * (180 / pi); //angle in degrees
 
     //mantém a seta apontada sempre buscando o giro da câmera
-    if (heading > 0) {
+    if (heading >= 0) {
       return heading;
     }
-    if (heading < 0 && heading < -90) {
+    if (heading < 0 && heading <= -90) {
       return 0;
     }
     return 180;
@@ -203,9 +204,15 @@ class _ARScreenState extends State<ARScreen> {
     return response.bodyBytes;
   }
 
+  double getMaxImageDistance() {
+    return distanceBetweenUsers > 10 ? 10 : distanceBetweenUsers;
+  }
+
   void _addImageNode() async {
     const IMG_SIZE = 512;
-    Uint8List imageBytes = await _loadImageFromUrl();
+    if (imageBytes.isEmpty) {
+      imageBytes = await _loadImageFromUrl();
+    }
 
     final image = ArCoreImage(
       bytes: imageBytes,
@@ -216,11 +223,11 @@ class _ARScreenState extends State<ARScreen> {
     imageNode = ArCoreNode(
       image: image,
       position:
-          vector.Vector3(0.0, 0.0, -1.0), // Move o objeto para trás da câmera
+          vector.Vector3(0.0, 0.0, -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
       rotation:
           vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
-      scale: vector.Vector3(0.2, 0.2, 0.2),
-      name: 'user-logo',
+      scale: vector.Vector3(0.7, 0.7, 0.7),
+      name: 'user-logo',      
     );
     if (_isCameraFacingCoordinates()) {
       arCoreController.removeNode(nodeName: imageNode.name);

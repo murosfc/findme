@@ -127,9 +127,11 @@ class RealTimeLocation {
         friendLatitude,
         friendLongitude,
       );       
-      //print("Distance: $distance meters");
-      //print("Angulacao: $bearing graus");
-      callback(distance.round().toDouble(), bearing, friendLatitude, friendLongitude);
+      print("Distance: $distance meters");
+      print("Angulacao: $bearing graus");
+      print("Latitude: $friendLatitude");
+      print("Longitude: $friendLongitude");
+      callback(distance.round().toDouble(), bearing, locationData['latitude'].toDouble(), locationData['longitude'].toDouble());
     });
   }
 }
