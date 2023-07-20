@@ -47,7 +47,7 @@ class _ARScreenState extends State<ARScreen> {
   @override
   void initState() {
     super.initState();
-     
+
     getRoom().then((_) {
       realTimeLocation = RealTimeLocation();
       realTimeLocation.connect();
@@ -69,12 +69,12 @@ class _ARScreenState extends State<ARScreen> {
     _accelerometerSubscription =
         accelerometerEvents.listen((AccelerometerEvent event) {
       _orientationValues = <double>[event.x, event.y];
-      _heading = _calculateHeading();
-      if (_isCameraFacingCoordinates()) {
-        setState(() {
-          _addImageNode();
-        });
-      }     
+      // _heading = _calculateHeading();
+      // if (_isCameraFacingCoordinates()) {
+      //   setState(() {
+      //     _addImageNode();
+      //   });
+      // }
     });
   }
 
@@ -83,11 +83,18 @@ class _ARScreenState extends State<ARScreen> {
     setState(() {
       distanceBetweenUsers = newDistance;
       bearingBetweenUsers = newBearing;
-      print("Friend Latitude received: $remoteLatitude");
-      print("Friend Longitude received: $remoteLongitude");
+
       if (remoteLatitude != 0 && remoteLongitude != 0) {
         friendLatitude = remoteLatitude;
         friendLongitude = remoteLongitude;
+
+        _heading = _calculateHeading();
+
+        if (_isCameraFacingCoordinates()) {
+          setState(() {
+            _addImageNode();
+          });
+        }
       }
     });
   }
@@ -162,17 +169,25 @@ class _ARScreenState extends State<ARScreen> {
     _addImageNode();
   }
 
-  double _calculateHeading() {     
-    double deltaY = friendLongitude - _orientationValues[1];
-    double deltaX = friendLatitude - _orientationValues[0];
+  double _calculateHeading() {
+    print("friendLongitude: $friendLongitude");
+    print("friendLatitude: $friendLatitude");
 
-    double heading = atan2(deltaY, deltaX) * (180 / pi); //angle in degrees
+    print(_orientationValues[1]);
+    print(_orientationValues[0]);
 
-    //mantém a seta apontada sempre buscando o giro da câmera
+    double deltaY = _orientationValues[1] - friendLongitude;
+    double deltaX = _orientationValues[0] - friendLatitude;
+
+    double heading = atan2(deltaY, deltaX) * (180 / pi); // angle in degrees
+    print("fdsfsdfds");
+
+    print(heading);
+    // mantém a seta apontada sempre buscando o giro da câmera
     if (heading >= 0) {
       return heading;
     }
-    if (heading < 0 && heading <= -90) {
+    if (heading < 0 && heading >= -90) {
       return 0;
     }
     return 180;
@@ -222,12 +237,12 @@ class _ARScreenState extends State<ARScreen> {
 
     imageNode = ArCoreNode(
       image: image,
-      position:
-          vector.Vector3(0.0, 0.0, -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
+      position: vector.Vector3(0.0, 0.0,
+          -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
       rotation:
           vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
       scale: vector.Vector3(0.7, 0.7, 0.7),
-      name: 'user-logo',      
+      name: 'user-logo',
     );
     if (_isCameraFacingCoordinates()) {
       arCoreController.removeNode(nodeName: imageNode.name);
