@@ -32,14 +32,21 @@ class _FindnMeHomeState extends State<FindnMeHome> {
   bool _isLoading = true;
   Contact _newContactAdd = Contact(0, '', '', '');
 
+  late String userName;
+
   @override
   void initState() {
     super.initState();
+    loadUserName();  
     loadContactList();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Notifications.requestFirebaseMessagingPermission();
     });
+  }
+
+  void loadUserName() async {
+    userName = (await User().getFullName())!;
   }
 
   @override

@@ -36,8 +36,7 @@ class _ARScreenState extends State<ARScreen> {
   late RealTimeLocation realTimeLocation = RealTimeLocation();
   late String userName = '';
 
-  //arrow variables
-  StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;  
+  //arrow variables    
   double _arrowAngle = 90;
   double? heading;
 
@@ -80,9 +79,8 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   @override
-  void dispose() {
-    _gyroscopeSubscription?.cancel();
-    accelerometerEvents.drain();
+  void dispose() {   
+    FlutterCompass.events?.listen((event) {}).cancel(); 
     arCoreController.dispose();
     realTimeLocation.disconnect();
     Wakelock.disable();
@@ -170,7 +168,7 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   bool _isCameraFacingCoordinates() {
-    return _arrowAngle < 10;
+    return (bearingBetweenUsers.abs() - heading!.abs()).abs() < 10;
   }
 
   Future<Uint8List> _loadImageFromUrl() async {
@@ -206,7 +204,7 @@ class _ARScreenState extends State<ARScreen> {
       name: 'user-logo',
     );
     if (_isCameraFacingCoordinates() && distanceBetweenUsers > 0) {
-      setState(() {
+      setState(() {        
         arCoreController.removeNode(nodeName: imageNode.name);
         arCoreController.addArCoreNode(imageNode);
       });

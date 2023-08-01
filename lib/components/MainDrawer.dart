@@ -9,20 +9,9 @@ import '../pages/RegisterScreen.dart';
 import 'AddContact.dart';
 
 class MainDrawer extends StatelessWidget {   
-  late String userName = '';
-
   @override
-  void initState() {    
-    fillUserName();    
-  }
-
-  void fillUserName() async {
-    userName = (await User().getFullName())!;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    
+  Widget build(BuildContext context) {   
+     
     return Container(
       color: VisualIdColors.colorGreen(),
       child: Column(
@@ -40,8 +29,7 @@ class MainDrawer extends StatelessWidget {
                       fontSize: 25.0,
                       fontWeight: FontWeight.w500,
                       color: Colors.white,
-                    ),
-                    //textAlign: TextAlign.left,
+                    ),                   
                   ),
                 ],
               ),
@@ -56,7 +44,7 @@ class MainDrawer extends StatelessWidget {
               Icons.add,
               color: Colors.white70,
             ),
-            title: Text("${'user'.i18n()} + ${User().getFullName()};!",
+            title: Text('user'.i18n(),
                 style: const TextStyle(color: Colors.white70)),
           ),
           const SizedBox(
