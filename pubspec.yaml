@@ -51,6 +51,8 @@ dependencies:
   arcore_flutter_plugin: ^0.1.0
   sensors_plus: ^3.0.2  
   flutter_cube: ^0.1.1 #objeto 3d
+  wakelock: ^0.6.2 #manter display on
+  flutter_compass: '^0.7.0' #bussola
 
 dev_dependencies:
   flutter_test:

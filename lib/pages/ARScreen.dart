@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:geolocator/geolocator.dart';
@@ -10,8 +11,7 @@ import 'package:localization/localization.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sensors_plus/sensors_plus.dart';
-
-//import 'package:findme/model/Calculation.dart';
+import 'package:wakelock/wakelock.dart';
 
 import '../colors/VisualIdColors.dart';
 import '../model/RealTimeLocation.dart';
@@ -25,16 +25,11 @@ class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
   late ArCoreNode imageNode;
-  StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
   Uint8List imageBytes = Uint8List(0);
 
   //Geolocation variables
-  double friendLatitude = 0;
-  double friendLongitude = 0;
   double distanceBetweenUsers = 0;
   double bearingBetweenUsers = 0;
-
-  late List<double> _orientationValues;
 
   //Connection variables
   late String? roomId = '';
@@ -42,11 +37,15 @@ class _ARScreenState extends State<ARScreen> {
   late String userName = '';
 
   //arrow variables
-  double _heading = 0;
+  StreamSubscription<GyroscopeEvent>? _gyroscopeSubscription;  
+  double _arrowAngle = 90;
+  double? heading;
 
   @override
   void initState() {
     super.initState();
+
+    Wakelock.enable();
 
     getRoom().then((_) {
       realTimeLocation = RealTimeLocation();
@@ -55,8 +54,17 @@ class _ARScreenState extends State<ARScreen> {
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
     });
 
-    _orientationValues = List.filled(2, 0);
-    _startAccelerometerListener();
+    FlutterCompass.events?.listen((event) {
+      setState(() {
+        heading = event.heading;
+      });
+      _updateArrowAngle();
+      if (_isCameraFacingCoordinates()) {
+        setState(() {
+          _addImageNode();
+        });
+      }
+    });
   }
 
   Future<void> getRoom() async {
@@ -65,44 +73,19 @@ class _ARScreenState extends State<ARScreen> {
     userName = prefs.getString('name_user') ?? '';
   }
 
-  void _startAccelerometerListener() {
-    _accelerometerSubscription =
-        accelerometerEvents.listen((AccelerometerEvent event) {
-      _orientationValues = <double>[event.x, event.y];
-      // _heading = _calculateHeading();
-      // if (_isCameraFacingCoordinates()) {
-      //   setState(() {
-      //     _addImageNode();
-      //   });
-      // }
-    });
-  }
-
   Future<void> updateDistance(double newDistance, double newBearing,
       double remoteLatitude, double remoteLongitude) async {
-    setState(() {
-      distanceBetweenUsers = newDistance;
-      bearingBetweenUsers = newBearing;
-
-      if (remoteLatitude != 0 && remoteLongitude != 0) {
-        friendLatitude = remoteLatitude;
-        friendLongitude = remoteLongitude;
-
-        _heading = _calculateHeading();
-
-        if (_isCameraFacingCoordinates()) {
-          setState(() {
-            _addImageNode();
-          });
-        }
-      }
-    });
+    distanceBetweenUsers = newDistance;
+    bearingBetweenUsers = newBearing;
   }
 
   @override
   void dispose() {
+    _gyroscopeSubscription?.cancel();
+    accelerometerEvents.drain();
     arCoreController.dispose();
     realTimeLocation.disconnect();
+    Wakelock.disable();
     super.dispose();
   }
 
@@ -125,15 +108,18 @@ class _ARScreenState extends State<ARScreen> {
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.center,
-              child: Transform.rotate(
-                angle: _heading,
-                child: Image.asset('assets/images/arrow.png', width: 200),
+          Visibility(
+            visible: distanceBetweenUsers > 0,
+            child: Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.center,
+                child: Transform.rotate(
+                  angle: _arrowAngle * pi / 180,
+                  child: Image.asset('assets/images/arrow.png', width: 200),
+                ),
               ),
             ),
           ),
@@ -144,7 +130,7 @@ class _ARScreenState extends State<ARScreen> {
               left: 10,
               right: 10,
               child: Text(
-                '$userName ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}',
+                "$userName ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}. \nHeading: ${heading!.toStringAsFixed(2)} \nBearing between users: ${bearingBetweenUsers.toStringAsFixed(2)} \nArrow angle: ${_arrowAngle.toStringAsFixed(2)}",
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
@@ -169,47 +155,22 @@ class _ARScreenState extends State<ARScreen> {
     _addImageNode();
   }
 
-  double _calculateHeading() {
-    print("friendLongitude: $friendLongitude");
-    print("friendLatitude: $friendLatitude");
+  void _updateArrowAngle() {
+    double arrowAngle = heading! + bearingBetweenUsers;
 
-    print(_orientationValues[1]);
-    print(_orientationValues[0]);
-
-    double deltaY = _orientationValues[1] - friendLongitude;
-    double deltaX = _orientationValues[0] - friendLatitude;
-
-    double heading = atan2(deltaY, deltaX) * (180 / pi); // angle in degrees
-    print("fdsfsdfds");
-
-    print(heading);
-    // mantém a seta apontada sempre buscando o giro da câmera
-    if (heading >= 0) {
-      return heading;
+    if (arrowAngle < 0) {
+      arrowAngle = arrowAngle.abs() / 180 * 90;
+    } else {
+      arrowAngle = arrowAngle / 180 * 90 + 90;
     }
-    if (heading < 0 && heading >= -90) {
-      return 0;
-    }
-    return 180;
+
+    setState(() {
+      _arrowAngle = arrowAngle;
+    });
   }
 
   bool _isCameraFacingCoordinates() {
-    if (friendLatitude == 0 && friendLongitude == 0) {
-      return false; // Not enough data to determine facing direction
-    }
-
-    // Get the direction of the camera.
-    final double x = _orientationValues[0];
-    final double y = _orientationValues[1];
-
-    // Get the angle between the camera direction and the coordinates.
-    final double angle = atan2(y, x); //angle in radians
-    final double angleDegrees = angle * (180 / pi); //angle in degrees
-
-    final double difference = friendLongitude - angleDegrees;
-
-    // Return true if the difference is less than or equal to 10 degrees.
-    return difference <= 10;
+    return _arrowAngle < 10;
   }
 
   Future<Uint8List> _loadImageFromUrl() async {
@@ -240,13 +201,15 @@ class _ARScreenState extends State<ARScreen> {
       position: vector.Vector3(0.0, 0.0,
           -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
       rotation:
-          vector.Vector4(0.0, 0, 0.0, 0), // Rotação em radianos (45 graus)
+          vector.Vector4(0.0, 0, 0.0, 0), 
       scale: vector.Vector3(0.7, 0.7, 0.7),
       name: 'user-logo',
     );
-    if (_isCameraFacingCoordinates()) {
-      arCoreController.removeNode(nodeName: imageNode.name);
-      arCoreController.addArCoreNode(imageNode);
+    if (_isCameraFacingCoordinates() && distanceBetweenUsers > 0) {
+      setState(() {
+        arCoreController.removeNode(nodeName: imageNode.name);
+        arCoreController.addArCoreNode(imageNode);
+      });
     }
   }
 }
