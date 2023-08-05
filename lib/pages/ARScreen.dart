@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -10,10 +11,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wakelock/wakelock.dart';
 
-import '../colors/VisualIdColors.dart';
+
 import '../model/RealTimeLocation.dart';
 
 class ARScreen extends StatefulWidget {
@@ -58,10 +58,8 @@ class _ARScreenState extends State<ARScreen> {
         heading = event.heading;
       });
       _updateArrowAngle();
-      if (_isCameraFacingCoordinates()) {
-        setState(() {
-          _addImageNode();
-        });
+      if (_isCameraFacingCoordinates()) {        
+          _addImageNode();        
       }
     });
   }
@@ -128,7 +126,7 @@ class _ARScreenState extends State<ARScreen> {
               left: 10,
               right: 10,
               child: Text(
-                "$userName ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}. \nHeading: ${heading!.toStringAsFixed(2)} \nBearing between users: ${bearingBetweenUsers.toStringAsFixed(2)} \nArrow angle: ${_arrowAngle.toStringAsFixed(2)}",
+                "$userName ${'is-distance'.i18n()} $formattedDistance ${'away'.i18n()}",
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.white,
@@ -154,12 +152,12 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _updateArrowAngle() {
-    double arrowAngle = heading! + bearingBetweenUsers;
+    double arrowAngle = heading! - bearingBetweenUsers;
 
     if (arrowAngle < 0) {
       arrowAngle = arrowAngle.abs() / 180 * 90;
     } else {
-      arrowAngle = arrowAngle / 180 * 90 + 90;
+      arrowAngle = - arrowAngle / 180 * 90;
     }
 
     setState(() {
@@ -167,8 +165,8 @@ class _ARScreenState extends State<ARScreen> {
     });
   }
 
-  bool _isCameraFacingCoordinates() {
-    return (bearingBetweenUsers.abs() - heading!.abs()).abs() < 10;
+  bool _isCameraFacingCoordinates() {    
+    return _arrowAngle.abs() <= 10;
   }
 
   Future<Uint8List> _loadImageFromUrl() async {
@@ -184,16 +182,15 @@ class _ARScreenState extends State<ARScreen> {
 
   void _addImageNode() async {
     const IMG_SIZE = 512;
-    if (imageBytes.isEmpty) {
+    if (imageBytes.isEmpty) {      
       imageBytes = await _loadImageFromUrl();
     }
-
+    if (_isCameraFacingCoordinates() && distanceBetweenUsers > 0) {
     final image = ArCoreImage(
       bytes: imageBytes,
       width: IMG_SIZE,
       height: IMG_SIZE,
     );
-
     imageNode = ArCoreNode(
       image: image,
       position: vector.Vector3(0.0, 0.0,
@@ -202,8 +199,7 @@ class _ARScreenState extends State<ARScreen> {
           vector.Vector4(0.0, 0, 0.0, 0), 
       scale: vector.Vector3(0.7, 0.7, 0.7),
       name: 'user-logo',
-    );
-    if (_isCameraFacingCoordinates() && distanceBetweenUsers > 0) {
+    );    
       setState(() {        
         arCoreController.removeNode(nodeName: imageNode.name);
         arCoreController.addArCoreNode(imageNode);

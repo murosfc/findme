@@ -53,6 +53,7 @@ class _LoadingScreenState extends State<LoadingScreen>
       _checkIsUserLogged();
     } else {
       // Not all permissions have been granted, show a message to the user
+      // ignore: use_build_context_synchronously
       showDialog(
         context: context,
         builder: (BuildContext context) {

@@ -44,7 +44,7 @@ class MainDrawer extends StatelessWidget {
               Icons.add,
               color: Colors.white70,
             ),
-            title: Text('user'.i18n(),
+            title: Text('user'.i18n() + User.fullUserName!,
                 style: const TextStyle(color: Colors.white70)),
           ),
           const SizedBox(

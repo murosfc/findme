@@ -14,6 +14,7 @@ import 'Notifications.dart';
 class User {
   static final User _myUser = User._internal();
   final _storage = const FlutterSecureStorage();
+  static late String? fullUserName;
   // ignore_for_file: constant_identifier_names
 
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
@@ -163,6 +164,7 @@ class User {
     if (token == null) {
       return false;
     }
+    fullUserName = await getFullName();
     Response response = await http
         .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});
     return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;

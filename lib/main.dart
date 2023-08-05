@@ -21,7 +21,6 @@ void main() async {
     print('Error initializing Firebase: $e');
   }
   await FirebaseMessaging.instance.getInitialMessage();
-
   runApp(const MyApp());
 }
 
