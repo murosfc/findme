@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
 
-class SearchBar extends SearchDelegate {
+class SearchBar extends SearchDelegate {  
   List<String> searchResults = [
     'Rafael',
     'Felipe',

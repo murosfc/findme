@@ -78,10 +78,10 @@ flutter:
     - lib/i18n/
     - assets/icon/icon.png
     - assets/images/   
-    - assets/images/arrow.png
-    - assets/images/user-logo.png
-
-
+    - assets/images/arrow-red.png
+    - assets/images/arrow-green.png
+    - assets/images/arrow-yellow.png
+  
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

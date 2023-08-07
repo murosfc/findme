@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:wakelock/wakelock.dart';
 
-
 import '../model/RealTimeLocation.dart';
 
 class ARScreen extends StatefulWidget {
@@ -24,7 +24,7 @@ class ARScreen extends StatefulWidget {
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
-  late ArCoreNode imageNode;
+  late ArCoreNode imageNode;  
   Uint8List imageBytes = Uint8List(0);
 
   //Geolocation variables
@@ -36,31 +36,28 @@ class _ARScreenState extends State<ARScreen> {
   late RealTimeLocation realTimeLocation = RealTimeLocation();
   late String userName = '';
 
-  //arrow variables    
+  //arrow variables
   double _arrowAngle = 90;
   double? heading;
+  String _arrowImagePath = "";
 
   @override
   void initState() {
-    super.initState();
-
-    Wakelock.enable();
-
+    super.initState(); 
+  
     getRoom().then((_) {
       realTimeLocation = RealTimeLocation();
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });
+    });    
 
     FlutterCompass.events?.listen((event) {
       setState(() {
         heading = event.heading;
       });
       _updateArrowAngle();
-      if (_isCameraFacingCoordinates()) {        
-          _addImageNode();        
-      }
+      _addImageNode();
     });
   }
 
@@ -77,16 +74,43 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   @override
-  void dispose() {   
-    FlutterCompass.events?.listen((event) {}).cancel(); 
+  void dispose() {
+    FlutterCompass.events?.listen((event) {}).cancel();
     arCoreController.dispose();
     realTimeLocation.disconnect();
     Wakelock.disable();
     super.dispose();
   }
 
+  Visibility _getArrow() {
+    String imageName = 'assets/images/';
+    if (_arrowAngle.abs() > 20) {
+      imageName += 'arrow-red.png';
+    } else if (_arrowAngle.abs() > 5) {
+      imageName += 'arrow-yellow.png';
+    } else {
+      imageName += 'arrow-green.png';
+    }
+    return Visibility(
+            visible: distanceBetweenUsers > 0,
+            child: Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Align(
+                alignment: Alignment.center,
+                child: Transform.rotate(
+                  angle: _arrowAngle * pi / 180,
+                  child: Image.asset(imageName, width: 150),
+                ),
+              ),
+            ),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
+    Wakelock.enable();
     String formattedDistance;
     if (distanceBetweenUsers > 1000) {
       double distanceInKm = distanceBetweenUsers / 1000;
@@ -104,21 +128,7 @@ class _ARScreenState extends State<ARScreen> {
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
           ),
-          Visibility(
-            visible: distanceBetweenUsers > 0,
-            child: Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.center,
-                child: Transform.rotate(
-                  angle: _arrowAngle * pi / 180,
-                  child: Image.asset('assets/images/arrow.png', width: 200),
-                ),
-              ),
-            ),
-          ),
+          _getArrow(),
           Visibility(
             visible: distanceBetweenUsers > 0,
             child: Positioned(
@@ -148,7 +158,7 @@ class _ARScreenState extends State<ARScreen> {
 
   void _onArCoreViewCreated(ArCoreController controller) {
     arCoreController = controller;
-    _addImageNode();
+    //_addImageNode();
   }
 
   void _updateArrowAngle() {
@@ -157,15 +167,14 @@ class _ARScreenState extends State<ARScreen> {
     if (arrowAngle < 0) {
       arrowAngle = arrowAngle.abs() / 180 * 90;
     } else {
-      arrowAngle = - arrowAngle / 180 * 90;
+      arrowAngle = -arrowAngle / 180 * 90;
     }
-
     setState(() {
       _arrowAngle = arrowAngle;
     });
   }
 
-  bool _isCameraFacingCoordinates() {    
+  bool _isCameraFacingCoordinates() {
     return _arrowAngle.abs() <= 10;
   }
 
@@ -180,30 +189,30 @@ class _ARScreenState extends State<ARScreen> {
     return distanceBetweenUsers > 10 ? 10 : distanceBetweenUsers;
   }
 
-  void _addImageNode() async {
-    const IMG_SIZE = 512;
-    if (imageBytes.isEmpty) {      
-      imageBytes = await _loadImageFromUrl();
-    }
-    if (_isCameraFacingCoordinates() && distanceBetweenUsers > 0) {
-    final image = ArCoreImage(
-      bytes: imageBytes,
-      width: IMG_SIZE,
-      height: IMG_SIZE,
-    );
-    imageNode = ArCoreNode(
-      image: image,
-      position: vector.Vector3(0.0, 0.0,
-          -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
-      rotation:
-          vector.Vector4(0.0, 0, 0.0, 0), 
-      scale: vector.Vector3(0.7, 0.7, 0.7),
-      name: 'user-logo',
-    );    
-      setState(() {        
-        arCoreController.removeNode(nodeName: imageNode.name);
-        arCoreController.addArCoreNode(imageNode);
-      });
+  void _addImageNode() async{
+    if (distanceBetweenUsers > 0 && _isCameraFacingCoordinates()) {      
+      const IMG_SIZE = 512;
+      const NODE_NAME = 'user-logo';
+      if (imageBytes.isEmpty) {
+        imageBytes = await _loadImageFromUrl();
+      }
+      final image = ArCoreImage(
+        bytes: imageBytes,
+        width: IMG_SIZE,
+        height: IMG_SIZE,
+      );
+      // if (imageNode.image != null) {
+      //    arCoreController.removeNode(nodeName: NODE_NAME);
+      // }
+      imageNode = ArCoreNode(
+        image: image,
+        position: vector.Vector3(0.0, 0.0,
+            -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
+        rotation: vector.Vector4(0.0, 0, 0.0, 0),
+        scale: vector.Vector3(0.7, 0.7, 0.7),
+        name: NODE_NAME,
+      );
+      arCoreController.addArCoreNode(imageNode);            
     }
   }
 }
