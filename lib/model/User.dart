@@ -14,7 +14,7 @@ import 'Notifications.dart';
 class User {
   static final User _myUser = User._internal();
   final _storage = const FlutterSecureStorage();
-  static late String? fullUserName;
+  static String fullUserName = "";
   // ignore_for_file: constant_identifier_names
 
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
@@ -28,7 +28,8 @@ class User {
   User._internal();
 
   Future<void> storeCredentials(Response response) async {
-    final Map<String, dynamic> data = json.decode(response.body);    
+    final Map<String, dynamic> data = json.decode(response.body); 
+    fullUserName = data['name'] + " " + data['familyName'];   
     await _storage.write(
         key: 'token', value: data['token'], aOptions: _getAndroidOptions());
     await _storage.write(
@@ -53,8 +54,8 @@ class User {
         .encode({'email': email, 'password': password, 'fcmToken': fcmToken});
     Response response = await http.post(Uri.parse(UserDataApi.login),
         headers: {'Content-Type': 'application/json'}, body: bodyJson);
-    if (response.statusCode == ResponseStatusCode.SUCCESS) {
-      storeCredentials(response);
+    if (response.statusCode == ResponseStatusCode.SUCCESS) {      
+      storeCredentials(response);              
     }
     return response.statusCode;
   }
@@ -163,8 +164,7 @@ class User {
     String? token = await _readSecureData("token");
     if (token == null) {
       return false;
-    }
-    fullUserName = await getFullName();
+    }    
     Response response = await http
         .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});
     return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;

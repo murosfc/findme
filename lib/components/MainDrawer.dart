@@ -37,19 +37,7 @@ class MainDrawer extends StatelessWidget {
           ),
           const SizedBox(
             height: 20.0,
-          ),
-          ListTile(
-            onTap: () {},
-            leading: const Icon(
-              Icons.add,
-              color: Colors.white70,
-            ),
-            title: Text('user'.i18n() + User.fullUserName!,
-                style: const TextStyle(color: Colors.white70)),
-          ),
-          const SizedBox(
-            height: 20.0,
-          ),         
+          ),                 
           ListTile(
             onTap: () {},
             leading: const Icon(
