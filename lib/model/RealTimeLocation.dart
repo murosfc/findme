@@ -6,13 +6,9 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class RealTimeLocation {
   late IO.Socket socket;
-  late StreamSubscription<Position> positionStreamSubscription;
+  late Timer shareLocationTimer;
   late double distance = 0.0;
   late double bearing = 0.0;
-  final LocationSettings locationSettings = const LocationSettings(
-      accuracy: LocationAccuracy.high, distanceFilter: 1);
-
-  final _API_URL = 'https://findme-real-time-location.onrender.com/';
 
   String generateRoomId() {
     // Generate a random room ID
@@ -27,12 +23,10 @@ class RealTimeLocation {
 
   void connect() {
     socket = IO.io(
-      _API_URL,
-      <String, dynamic>{
-        'transports': ['websocket'],
-        'autoConnect': false,
-      },
-    );
+        'https://findme-real-time-location.onrender.com/', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
     socket.connect();
   }
 
@@ -55,46 +49,39 @@ class RealTimeLocation {
     socket.emit('close');
   }
 
-  void shareLocation(roomId) async {
-    _getCurrentLocation().then((position) {
-      _sendLocation(roomId, position);
-    });
+  void shareLocation(roomId) {
+    // Fetch the initial position immediately
+    _sendLocation(roomId);
 
-    positionStreamSubscription =
-        Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? position) {
-      position != null
-          ? _sendLocation(roomId, position)
-          : print('Localização nula');
+    // Start a timer to fetch the position at regular intervals
+    shareLocationTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+      _sendLocation(roomId);
     });
   }
 
   void stopSharingLocation() {
-    positionStreamSubscription.cancel();
-    print('Stopped sharing location');
+    if (shareLocationTimer != null) {
+      shareLocationTimer.cancel();
+      print('Stopped sharing location');
+    }
   }
 
   Future<Position> _getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
+    LocationAccuracyStatus accuracyStatus =
+        await Geolocator.getLocationAccuracy();
+    LocationAccuracy desiredAccuracy;
+    if (accuracyStatus == LocationAccuracyStatus.reduced) {
+      desiredAccuracy = LocationAccuracy.lowest;
+    } else {
+      desiredAccuracy = LocationAccuracy.high;
     }
-
-    if (permission == LocationPermission.deniedForever) {
-      throw 'Location permission denied forever. Please enable it in the app settings.';
-    }
-
-    if (permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always) {
-      return await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-    }
-
-    throw 'Location permission denied.';
+    Position position =
+        await Geolocator.getCurrentPosition(desiredAccuracy: desiredAccuracy);
+    return position;
   }
 
-  void _sendLocation(String roomId, Position position) {
+  void _sendLocation(String roomId) async {
+    Position position = await _getCurrentLocation();
     Map<String, dynamic> locationUpdate = {
       'room_id': roomId,
       'location_data': {
@@ -106,14 +93,19 @@ class RealTimeLocation {
   }
 
   Future<void> getDistanceBetweenUsers(
-      Function(double, double, double, double,) callback) async {
-    socket.on('getFriendPosition', (locationData) async {      
-      
+      Function(
+    double,
+    double,
+    double,
+    double,
+  )
+          callback) async {
+    socket.on('getFriendPosition', (locationData) async {
       double friendLatitude = locationData['latitude'].toDouble();
       double friendLongitude = locationData['longitude'].toDouble();
-      
+
       Position myPosition = await _getCurrentLocation();
-      
+
       distance = Geolocator.distanceBetween(
         myPosition.latitude,
         myPosition.longitude,
@@ -126,12 +118,16 @@ class RealTimeLocation {
         myPosition.longitude,
         friendLatitude,
         friendLongitude,
-      );       
+      );
       print("Distance: $distance meters");
       print("Angulacao: $bearing graus");
       print("Latitude: $friendLatitude");
       print("Longitude: $friendLongitude");
-      callback(distance.round().toDouble(), bearing, locationData['latitude'].toDouble(), locationData['longitude'].toDouble());
+      callback(
+          distance.round().toDouble(),
+          bearing,
+          locationData['latitude'].toDouble(),
+          locationData['longitude'].toDouble());
     });
   }
 }
