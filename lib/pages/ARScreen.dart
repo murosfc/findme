@@ -24,12 +24,14 @@ class ARScreen extends StatefulWidget {
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
   late ArCoreController arCoreController;
-  late ArCoreNode imageNode;  
+  late ArCoreNode imageNode;
   Uint8List imageBytes = Uint8List(0);
+  int countArImage = 0;
 
   //Geolocation variables
   double distanceBetweenUsers = 0;
   double bearingBetweenUsers = 0;
+  bool bearingChanged = false;
 
   //Connection variables
   late String? roomId = '';
@@ -43,14 +45,14 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   void initState() {
-    super.initState(); 
-  
+    super.initState();
+
     getRoom().then((_) {
       realTimeLocation = RealTimeLocation();
       realTimeLocation.connect();
       realTimeLocation.joinRoom(roomId);
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });    
+    });
 
     FlutterCompass.events?.listen((event) {
       setState(() {
@@ -69,6 +71,9 @@ class _ARScreenState extends State<ARScreen> {
 
   Future<void> updateDistance(double newDistance, double newBearing,
       double remoteLatitude, double remoteLongitude) async {
+    if (newBearing != bearingBetweenUsers) {
+      bearingChanged = true;
+    }
     distanceBetweenUsers = newDistance;
     bearingBetweenUsers = newBearing;
   }
@@ -92,20 +97,20 @@ class _ARScreenState extends State<ARScreen> {
       imageName += 'arrow-green.png';
     }
     return Visibility(
-            visible: distanceBetweenUsers > 0,
-            child: Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Align(
-                alignment: Alignment.center,
-                child: Transform.rotate(
-                  angle: _arrowAngle * pi / 180,
-                  child: Image.asset(imageName, width: 150),
-                ),
-              ),
-            ),
-          );
+      visible: distanceBetweenUsers > 0,
+      child: Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        child: Align(
+          alignment: Alignment.center,
+          child: Transform.rotate(
+            angle: _arrowAngle * pi / 180,
+            child: Image.asset(imageName, width: 150),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -157,8 +162,7 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _onArCoreViewCreated(ArCoreController controller) {
-    arCoreController = controller;
-    //_addImageNode();
+    arCoreController = controller;    
   }
 
   void _updateArrowAngle() {
@@ -189,10 +193,11 @@ class _ARScreenState extends State<ARScreen> {
     return distanceBetweenUsers > 10 ? 10 : distanceBetweenUsers;
   }
 
-  void _addImageNode() async{
-    if (distanceBetweenUsers > 0 && _isCameraFacingCoordinates()) {      
+  void _addImageNode() async {
+    if (bearingChanged && _isCameraFacingCoordinates()) {
+      var NODE_NAME = 'user-logo-$countArImage';
+      countArImage++;
       const IMG_SIZE = 512;
-      const NODE_NAME = 'user-logo';
       if (imageBytes.isEmpty) {
         imageBytes = await _loadImageFromUrl();
       }
@@ -200,10 +205,9 @@ class _ARScreenState extends State<ARScreen> {
         bytes: imageBytes,
         width: IMG_SIZE,
         height: IMG_SIZE,
-      );
-      // if (imageNode.image != null) {
-      //    arCoreController.removeNode(nodeName: NODE_NAME);
-      // }
+      );  
+      var previousNodeName = 'user-logo-${countArImage - 1}';    
+      arCoreController.removeNode(nodeName: previousNodeName);     
       imageNode = ArCoreNode(
         image: image,
         position: vector.Vector3(0.0, 0.0,
@@ -212,7 +216,8 @@ class _ARScreenState extends State<ARScreen> {
         scale: vector.Vector3(0.7, 0.7, 0.7),
         name: NODE_NAME,
       );
-      arCoreController.addArCoreNode(imageNode);            
+      arCoreController.addArCoreNode(imageNode);
+      bearingChanged = false;
     }
   }
 }
