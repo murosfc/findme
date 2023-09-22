@@ -13,9 +13,7 @@ import 'Notifications.dart';
 
 class User {
   static final User _myUser = User._internal();
-  final _storage = const FlutterSecureStorage();
-  static String fullUserName = "";
-  // ignore_for_file: constant_identifier_names
+  final _storage = const FlutterSecureStorage(); 
 
   AndroidOptions _getAndroidOptions() => const AndroidOptions(
         encryptedSharedPreferences: true,
@@ -28,8 +26,7 @@ class User {
   User._internal();
 
   Future<void> storeCredentials(Response response) async {
-    final Map<String, dynamic> data = json.decode(response.body); 
-    fullUserName = data['name'] + " " + data['familyName'];   
+    final Map<String, dynamic> data = json.decode(response.body);      
     await _storage.write(
         key: 'token', value: data['token'], aOptions: _getAndroidOptions());
     await _storage.write(
@@ -67,8 +64,7 @@ class User {
     return response.statusCode;
   }
 
-  Future<bool> approveRequest(Contact contact) async {
-    print("approveRequest");
+  Future<bool> approveRequest(Contact contact) async { 
     String? token = await _readSecureData("token");
     if (token == null) {
       logout();
@@ -76,8 +72,7 @@ class User {
       String bodyJson = json.encode({'id': contact.id});
       Response response = await http.post(Uri.parse(UserDataApi.authorizeContact),
           body: bodyJson,
-          headers: {'token': token, "content-type": "application/json"});
-      print(response.statusCode);   
+          headers: {'token': token, "content-type": "application/json"});      
       if (response.statusCode == ResponseStatusCode.SUCCESS) {
         return true;
       } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
@@ -161,12 +156,17 @@ class User {
   }
 
   Future<bool> isUserLogged() async {
-    String? token = await _readSecureData("token");
-    if (token == null) {
+    String? token = "";
+    try{
+      token = await _readSecureData("token");
+    }catch(e){
       return false;
     }    
+    if (token == null) {
+      return false;
+    }       
     Response response = await http
-        .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});
+        .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});   
     return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;
   }
 
