@@ -27,11 +27,13 @@ class _ARScreenState extends State<ARScreen> {
   late ArCoreNode imageNode;
   Uint8List imageBytes = Uint8List(0);
   int countArImage = 0;
+  late ArCoreImage avatar;
 
   //Geolocation variables
   double distanceBetweenUsers = 0;
   double bearingBetweenUsers = 0;
   bool bearingChanged = false;
+  bool distanceChanged = false;
 
   //Connection variables
   late String? roomId = '';
@@ -41,7 +43,6 @@ class _ARScreenState extends State<ARScreen> {
   //arrow variables
   double _arrowAngle = 90;
   double? heading;
-  String _arrowImagePath = "";
 
   @override
   void initState() {
@@ -54,13 +55,19 @@ class _ARScreenState extends State<ARScreen> {
       realTimeLocation.getDistanceBetweenUsers(updateDistance);
     });
 
+    _loadImageFromUrl();
+
     FlutterCompass.events?.listen((event) {
       setState(() {
         heading = event.heading;
       });
       _updateArrowAngle();
-      _addImageNode();
+      distanceOrBearinChanged() && _isCameraFacingCoordinates() ? _addImageNode() : () {};
     });
+  }
+
+  bool distanceOrBearinChanged() {
+    return distanceBetweenUsers > 0 || bearingChanged;
   }
 
   Future<void> getRoom() async {
@@ -71,9 +78,8 @@ class _ARScreenState extends State<ARScreen> {
 
   Future<void> updateDistance(double newDistance, double newBearing,
       double remoteLatitude, double remoteLongitude) async {
-    if (newBearing != bearingBetweenUsers) {
-      bearingChanged = true;
-    }
+    bearingChanged = (newBearing != bearingBetweenUsers);
+    distanceChanged = (newDistance != distanceBetweenUsers);    
     distanceBetweenUsers = newDistance;
     bearingBetweenUsers = newBearing;
   }
@@ -132,6 +138,7 @@ class _ARScreenState extends State<ARScreen> {
           ArCoreView(
             onArCoreViewCreated: _onArCoreViewCreated,
             enableTapRecognizer: false,
+            enableUpdateListener: true,
           ),
           _getArrow(),
           Visibility(
@@ -175,18 +182,24 @@ class _ARScreenState extends State<ARScreen> {
     }
     setState(() {
       _arrowAngle = arrowAngle;
-    });
+    });    
   }
 
   bool _isCameraFacingCoordinates() {
     return _arrowAngle.abs() <= 10;
   }
 
-  Future<Uint8List> _loadImageFromUrl() async {
+  _loadImageFromUrl() async {
+    const IMG_SIZE = 512;
     const String imageUrl =
         'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
     final response = await http.get(Uri.parse(imageUrl));
-    return response.bodyBytes;
+    imageBytes = response.bodyBytes;
+    avatar = ArCoreImage(
+      bytes: imageBytes,
+      width: IMG_SIZE,
+      height: IMG_SIZE,
+    );
   }
 
   double getMaxImageDistance() {
@@ -194,30 +207,20 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _addImageNode() async {
-    if (bearingChanged && _isCameraFacingCoordinates()) {
-      var NODE_NAME = 'user-logo-$countArImage';
-      countArImage++;
-      const IMG_SIZE = 512;
-      if (imageBytes.isEmpty) {
-        imageBytes = await _loadImageFromUrl();
-      }
-      final image = ArCoreImage(
-        bytes: imageBytes,
-        width: IMG_SIZE,
-        height: IMG_SIZE,
-      );  
-      var previousNodeName = 'user-logo-${countArImage - 1}';    
-      arCoreController.removeNode(nodeName: previousNodeName);     
-      imageNode = ArCoreNode(
-        image: image,
-        position: vector.Vector3(0.0, 0.0,
-            -getMaxImageDistance()), // Move o objeto para trás da câmera à distância máxima ou a do amigo
-        rotation: vector.Vector4(0.0, 0, 0.0, 0),
-        scale: vector.Vector3(0.7, 0.7, 0.7),
-        name: NODE_NAME,
-      );
-      arCoreController.addArCoreNode(imageNode);
-      bearingChanged = false;
+    var NODE_NAME = 'user-logo';
+    countArImage++;
+    if (countArImage > 1) {      
+      arCoreController.removeNode(nodeName: NODE_NAME);
     }
+    imageNode = ArCoreNode(
+      image: avatar,
+      position: vector.Vector3(0.0, 0.0, -getMaxImageDistance()),
+      rotation: vector.Vector4(0.0, 0, 0.0, 0),
+      scale: vector.Vector3(0.7, 0.7, 0.7),
+      name: NODE_NAME,
+    );
+    arCoreController.addArCoreNode(imageNode);
+    bearingChanged = false;
+    distanceChanged = false;
   }
 }
