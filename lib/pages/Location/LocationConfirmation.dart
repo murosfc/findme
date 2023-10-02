@@ -28,7 +28,7 @@ class _LocationConfirmationPageState extends State<LocationConfirmationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('share-location-question'.i18n()),
+            Text('share-location-question'.i18n(), style: const TextStyle(color: Colors.white),),
             ElevatedButton(
               child: Text('yes'.i18n()),
               onPressed: () {

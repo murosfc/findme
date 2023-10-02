@@ -241,7 +241,7 @@ class _FindnMeHomeState extends State<FindnMeHome> {
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
-                showSearch(context: context, delegate: SearchBar());
+                //showSearch(context: context, delegate: SearchBar());                
               },
             ),
           ],
