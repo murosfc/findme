@@ -29,10 +29,12 @@ O FindMe é um aplicativo móvel que permite aos usuários se localizarem mutuam
 
 ## 📋 Pré-requisitos
 
-- Flutter SDK 3.0.0+
-- Dart 3.0.0+
-- Android Studio / VS Code
-- Dispositivo Android com suporte a ARCore
+- **Flutter SDK 3.32.8+** (stable)
+- **Dart 3.8.1+** (incluído no Flutter)
+- **Git** (para clonagem do repositório)
+- **VS Code** ou **Android Studio** (recomendado)
+- **Chrome** (para desenvolvimento web)
+- **Dispositivo Android com suporte a ARCore** (para funcionalidades AR)
 
 ## 🛠️ Instalação
 
@@ -43,24 +45,41 @@ git clone https://github.com/seu-usuario/findme.git
 cd findme
 ```
 
-2. Instale as dependências:
+2. Verifique a instalação do Flutter:
+
+```bash
+flutter doctor
+```
+
+3. Instale as dependências:
 
 ```bash
 flutter pub get
 ```
 
-3. Configure o Firebase:
+4. Configure o Firebase:
 
    - Adicione o arquivo `google-services.json` na pasta `android/app/`
    - Configure as credenciais do Firebase no projeto
 
-4. Execute o aplicativo:
+5. Execute o aplicativo:
 
 ```bash
+# Para web (recomendado para teste inicial)
+flutter run -d chrome
+
+# Para Android (requer dispositivo/emulador)
 flutter run
+
+# Para compilar para web
+flutter build web --release
 ```
 
-5. Você vai precisar criar suas API's, uma para autenticação e outra para fazer a troca de dados de localização entro os usuários.
+6. Configure as APIs backend:
+
+   - Crie API para autenticação de usuários
+   - Configure API para troca de dados de localização em tempo real
+   - Atualize as URLs no arquivo `lib/api/UserDataApi.dart`
 
 ## 📁 Estrutura do Projeto
 
@@ -113,10 +132,13 @@ Configure as seguintes variáveis no seu arquivo de configuração:
 
 ### 📦 Dependências
 
-- ✅ Atualização para Flutter 3.0+
-- ✅ Atualização de todas as dependências para versões mais recentes
-- ✅ Migração de `wakelock` para `wakelock_plus`
-- ✅ Melhoria na compatibilidade
+- ✅ **Flutter 3.32.8** (stable)
+- ✅ **Dart 3.8.1** (stable)
+- ✅ Todas as dependências atualizadas para versões 2024/2025
+- ✅ **Migração de `wakelock` para `wakelock_plus`**
+- ✅ **Remoção da dependência `configuration`** (incompatível)
+- ✅ **Socket.IO Client 2.0.3** (compatível com null safety)
+- ✅ Melhoria completa na compatibilidade
 
 ### ⚡ Performance
 
@@ -125,7 +147,7 @@ Configure as seguintes variáveis no seu arquivo de configuração:
 - ✅ Melhoria no gerenciamento de estado
 - ✅ Redução de rebuilds desnecessários
 
-## 🧪 Testes
+## 🧪 Testes e Verificações
 
 Para executar os testes:
 
@@ -133,10 +155,49 @@ Para executar os testes:
 flutter test
 ```
 
+Para analisar o código:
+
+```bash
+flutter analyze
+```
+
+Para verificar dependências desatualizadas:
+
+```bash
+flutter pub outdated
+```
+
+## 🔧 Troubleshooting
+
+### Problemas Comuns
+
+1. **Erro "flutter command not found"**:
+
+   - Verifique se o Flutter está no PATH
+   - Execute `echo $PATH` (Linux/Mac) ou `echo $env:PATH` (Windows)
+
+2. **Problemas com dependências**:
+
+   ```bash
+   flutter clean
+   flutter pub get
+   ```
+
+3. **Erro de compilação para web**:
+
+   - Verifique se o Chrome está instalado
+   - Execute `flutter config --enable-web`
+
+4. **Problemas com ARCore**:
+   - Verifique se o dispositivo suporta ARCore
+   - Consulte: https://developers.google.com/ar/devices
+
 ## 📱 Plataformas Suportadas
 
-- ✅ Android (requer ARCore)
-- ⏳ iOS (em desenvolvimento)
+- ✅ **Web** (Chrome, Firefox, Safari)
+- ✅ **Android** (requer ARCore para funcionalidades AR)
+- ⏳ **iOS** (em desenvolvimento)
+- ⏳ **Windows** (em desenvolvimento)
 
 ## 🤝 Contribuição
 
@@ -149,6 +210,14 @@ flutter test
 ## 📄 Licença
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 📊 Status do Projeto
+
+- **Versão**: 2.1.0
+- **Flutter**: 3.32.8 (stable)
+- **Dart**: 3.8.1 (stable)
+- **Última atualização**: Dezembro 2024
+- **Status**: ✅ Totalmente funcional
 
 ---
 

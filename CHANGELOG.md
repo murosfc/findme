@@ -2,6 +2,37 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [2.1.0] - 2024-12-19
+
+### 🚀 Adicionado
+
+- **Instalação completa do Flutter 3.32.8** e configuração do ambiente
+- Seção de **Troubleshooting** no README.md
+- Comandos de verificação e análise de código
+- Suporte completo para desenvolvimento **web**
+
+### 🔄 Modificado
+
+- **Corrigido erro de compilação** em `SearchBar.dart` (headline6 → titleLarge)
+- **Removida dependência `configuration`** (incompatível com null safety)
+- **Ajustada versão do `socket_io_client`** para 2.0.3
+- README.md atualizado com informações precisas de instalação
+
+### 🔧 Corrigido
+
+- Problemas de compatibilidade de dependências
+- Erro de compilação para web
+- Problemas de null safety em temas
+
+### 📝 Documentação
+
+- README.md atualizado com versões exatas do Flutter/Dart
+- Instruções de instalação mais detalhadas
+- Seção de troubleshooting para problemas comuns
+- Comandos atualizados de execução e build
+
+---
+
 ## [2.0.0] - 2024-12-19
 
 ### 🚀 Adicionado
