@@ -67,7 +67,7 @@ class SearchBar extends SearchDelegate {
       ),
       textTheme: Theme.of(context)
           .textTheme
-          .copyWith(headline6: TextStyle(color: Colors.white)),
+          .copyWith(titleLarge: const TextStyle(color: Colors.white)),
     );
   }
 }

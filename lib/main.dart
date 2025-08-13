@@ -1,4 +1,4 @@
-import 'package:findme/colors/VisualIdColors.dart';
+import 'package:findme/themes/app_theme.dart';
 import 'package:findme/pages/ARScreen.dart';
 import 'package:findme/pages/LoadingScreen.dart';
 import 'package:findme/pages/Location/LocationConfirmation.dart';
@@ -12,15 +12,19 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await _initializeFirebase();
+  runApp(const MyApp());
+}
+
+Future<void> _initializeFirebase() async {
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await FirebaseMessaging.instance.getInitialMessage();
   } catch (e) {
-    print('Error initializing Firebase: $e');
+    print('Erro ao inicializar Firebase: $e');
   }
-  await FirebaseMessaging.instance.getInitialMessage();
-  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,27 +34,36 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     LocalJsonLocalization.delegate.directories = ['lib/i18n'];
     return MaterialApp(
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        LocalJsonLocalization.delegate,
-      ],
-      theme: ThemeData(
-        primarySwatch: VisualIdColors.colorGreen(),
-        scaffoldBackgroundColor: const Color.fromRGBO(18, 18, 18, 1),
-      ),
+      localizationsDelegates: _buildLocalizationDelegates(),
+      theme: _buildTheme(),
       supportedLocales: const [
         Locale('en', 'US'),
         Locale('pt', 'BR'),
       ],
       home: const LoadingScreen(),
-      routes: {
-        '/location-confirmation': (context) => LocationConfirmationPage(),
-        '/live_location_updates': (context) => ARScreen(),
-        '/request-location': (context) => LocationConfirmationPage(),       
-      },
+      routes: _buildRoutes(),
       debugShowCheckedModeBanner: false,
     );
+  }
+
+  List<LocalizationsDelegate> _buildLocalizationDelegates() {
+    return [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      LocalJsonLocalization.delegate,
+    ];
+  }
+
+  ThemeData _buildTheme() {
+    return AppTheme.lightTheme;
+  }
+
+  Map<String, WidgetBuilder> _buildRoutes() {
+    return {
+      '/location-confirmation': (context) => LocationConfirmationPage(),
+      '/live_location_updates': (context) => ARScreen(),
+      '/request-location': (context) => LocationConfirmationPage(),
+    };
   }
 }

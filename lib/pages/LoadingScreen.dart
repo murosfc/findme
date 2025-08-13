@@ -4,11 +4,10 @@ import 'package:findme/model/User.dart';
 import 'package:findme/pages/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:localization/localization.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'FindnMeHome.dart';
-
-import 'package:permission_handler/permission_handler.dart';
+import '../services/permission_service.dart';
+import '../constants/app_constants.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -26,70 +25,55 @@ class _LoadingScreenState extends State<LoadingScreen>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 10),
+      duration: AppConstants.animationDuration,
     )..repeat();
     _checkPermissions();
   }
 
   Future<void> _checkPermissions() async {
-    // Check camera permission
-    var cameraStatus = await Permission.camera.status;
-    if (!cameraStatus.isGranted) {
-      // Request camera permission
-      await Permission.camera.request();
-    }
+    final allPermissionsGranted = await PermissionService.requestAndCheckPermissions();
 
-    // Check location permission
-    var locationStatus = await Permission.location.status;
-    if (!locationStatus.isGranted) {
-      // Request location permission
-      await Permission.location.request();
-    }
-
-    // Check if all permissions have been granted
-    if (await Permission.camera.isGranted &&
-        await Permission.location.isGranted) {
-      // All permissions have been granted, proceed to next screen
-      _checkIsUserLogged();
+    if (allPermissionsGranted) {
+      await _checkIsUserLogged();
     } else {
-      // Not all permissions have been granted, show a message to the user
-      // ignore: use_build_context_synchronously
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("permissions-required-alert".i18n()),
-            content: Text("permissions-required-message".i18n()),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
+      _showPermissionsDialog();
     }
   }
 
+  void _showPermissionsDialog() {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("permissions-required-alert".i18n()),
+          content: Text("permissions-required-message".i18n()),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _checkIsUserLogged() async {
-    User user = User();
-    bool isUserLogged = await user.isUserLogged();
-    if (isUserLogged) {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => FindnMeHome()),
-      );
-    } else {
-      // ignore: use_build_context_synchronously
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
-      );
-    }
+    if (!mounted) return;
+    
+    final user = User();
+    final isUserLogged = await user.isUserLogged();
+    
+    if (!mounted) return;
+    
+    final nextPage = isUserLogged ? FindnMeHome() : LoginPage();
+    
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => nextPage),
+    );
   }
 
   @override
@@ -113,7 +97,7 @@ class _LoadingScreenState extends State<LoadingScreen>
               ),
               SizedBox(height: 20.0),
               Text(
-                "Loading...",
+                "Carregando...",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18.0,

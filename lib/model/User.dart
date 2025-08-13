@@ -65,20 +65,25 @@ class User {
   }
 
   Future<bool> approveRequest(Contact contact) async { 
-    String? token = await _readSecureData("token");
+    final token = await _readSecureData("token");
     if (token == null) {
       logout();
-    } else {
-      String bodyJson = json.encode({'id': contact.id});
-      Response response = await http.post(Uri.parse(UserDataApi.authorizeContact),
-          body: bodyJson,
-          headers: {'token': token, "content-type": "application/json"});      
-      if (response.statusCode == ResponseStatusCode.SUCCESS) {
-        return true;
-      } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
-        logout();         
-      }        
+      return false;
     }
+
+    final bodyJson = json.encode({'id': contact.id});
+    final response = await http.post(
+      Uri.parse(UserDataApi.authorizeContact),
+      body: bodyJson,
+      headers: {'token': token, "content-type": "application/json"},
+    );
+    
+    if (response.statusCode == ResponseStatusCode.SUCCESS) {
+      return true;
+    } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+      logout();
+    }
+    
     return false;
   }
 
@@ -89,62 +94,71 @@ class User {
   }
 
   Future<Contact?> addContact(String email) async {
-    String? token = await _readSecureData("token");
+    final token = await _readSecureData("token");
     if (token == null) {
       logout();
-    } else {
-      String bodyJson = json.encode({'email': email});
-      Response response = await http.post(Uri.parse(UserDataApi.addContact),
-          body: bodyJson,
-          headers: {'token': token, "content-type": "application/json"});
-      if (response.statusCode == ResponseStatusCode.SUCCESS) {
-        String jsonString = response.body;
-        dynamic newContactJson = json.decode(jsonString);
-        Contact newContact = Contact(
-            newContactJson['id'],
-            newContactJson['name'],
-            newContactJson['familyName'],
-            newContactJson['pictureUrl']);
-        return newContact;
-      } else if (response.statusCode == ResponseStatusCode.BAD_CREDENTIALS) {
+      return null;
+    }
+
+    final bodyJson = json.encode({'email': email});
+    final response = await http.post(
+      Uri.parse(UserDataApi.addContact),
+      body: bodyJson,
+      headers: {'token': token, "content-type": "application/json"},
+    );
+
+    switch (response.statusCode) {
+      case ResponseStatusCode.SUCCESS:
+        final newContactJson = json.decode(response.body);
+        return Contact(
+          newContactJson['id'],
+          newContactJson['name'],
+          newContactJson['familyName'],
+          newContactJson['pictureUrl'],
+        );
+      case ResponseStatusCode.BAD_CREDENTIALS:
         logout();
         throw Exception('invalid-token'.i18n());
-      } else if (response.statusCode == ResponseStatusCode.FORBIDDEN) {
+      case ResponseStatusCode.FORBIDDEN:
         throw Exception('already-contact'.i18n());
-      } else if (response.statusCode == ResponseStatusCode.NOT_FOUND) {
+      case ResponseStatusCode.NOT_FOUND:
         throw Exception('contact-not-found'.i18n());
-      } else {
+      default:
         throw Exception('server-error'.i18n());
-      }
     }
-    return null;
   }
 
   Future<List<Contact>> getContactList(String type) async {
-    String url = '';
-    const PENDING_TYPE = "REQUESTS";
-    List<Contact> contacts = [];
-    String? token = await _readSecureData("token");
+    const pendingType = "REQUESTS";
+    final token = await _readSecureData("token");
+    
     if (token == null) {
       logout();
+      return [];
     }
-    type == PENDING_TYPE
-        ? url = UserDataApi.getPendingContacts
-        : url = "${UserDataApi.getContacts}$type";
-    Response response =
-        await http.get(Uri.parse(url), headers: {'token': token!});
+
+    final url = type == pendingType
+        ? UserDataApi.getPendingContacts
+        : "${UserDataApi.getContacts}$type";
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {'token': token},
+    );
+
     if (response.statusCode == ResponseStatusCode.SUCCESS) {
-      String jsonString = response.body;
-      List<dynamic> jsonList = json.decode(jsonString);
-      for (var jsonObj in jsonList) {
-        int id = jsonObj['id'];
-        String name = jsonObj['name'];
-        String familyName = jsonObj['familyName'];
-        String pictureUrl = jsonObj['pictureUrl'];
-        contacts.add(Contact(id, name, familyName, pictureUrl));
-      }
+      final jsonList = json.decode(response.body) as List<dynamic>;
+      return jsonList
+          .map((jsonObj) => Contact(
+                jsonObj['id'] as int,
+                jsonObj['name'] as String,
+                jsonObj['familyName'] as String,
+                jsonObj['pictureUrl'] as String,
+              ))
+          .toList();
     }
-    return contacts;
+    
+    return [];
   }
 
   void logout() {
@@ -156,18 +170,19 @@ class User {
   }
 
   Future<bool> isUserLogged() async {
-    String? token = "";
-    try{
-      token = await _readSecureData("token");
-    }catch(e){
+    try {
+      final token = await _readSecureData("token");
+      if (token == null) return false;
+      
+      final response = await http.get(
+        Uri.parse(UserDataApi.checkToken),
+        headers: {'token': token},
+      );
+      
+      return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;
+    } catch (e) {
       return false;
-    }    
-    if (token == null) {
-      return false;
-    }       
-    Response response = await http
-        .get(Uri.parse(UserDataApi.checkToken), headers: {'token': token});   
-    return response.statusCode != ResponseStatusCode.BAD_CREDENTIALS;
+    }
   }
 
   Future<String?> getJwtToken() async {
@@ -183,7 +198,9 @@ class User {
   }
 
   Future<String?> getFullName() async {
-    return "${_readSecureData("name")} ${_readSecureData("familyName")}";
+    final name = await _readSecureData("name");
+    final familyName = await _readSecureData("familyName");
+    return "$name $familyName";
   }
 
   Future<String?> getFamilyName() async {

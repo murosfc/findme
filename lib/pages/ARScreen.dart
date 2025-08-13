@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -8,13 +7,14 @@ import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
-import 'package:geolocator/geolocator.dart';
 import 'package:localization/localization.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../model/RealTimeLocation.dart';
+import '../constants/app_constants.dart';
+import '../utils/app_utils.dart';
 
 class ARScreen extends StatefulWidget {
   @override
@@ -23,11 +23,11 @@ class ARScreen extends StatefulWidget {
 
 class _ARScreenState extends State<ARScreen> {
   //ARcore variables
-  late ArCoreController arCoreController;
-  late ArCoreNode imageNode;
+  ArCoreController? arCoreController;
+  ArCoreNode? imageNode;
   Uint8List imageBytes = Uint8List(0);
   int countArImage = 0;
-  late ArCoreImage avatar;
+  ArCoreImage? avatar;
 
   //Geolocation variables
   double distanceBetweenUsers = 0;
@@ -35,10 +35,9 @@ class _ARScreenState extends State<ARScreen> {
   bool bearingChanged = false;
   bool distanceChanged = false;
 
-  //Connection variables
-  late String? roomId = '';
-  late RealTimeLocation realTimeLocation = RealTimeLocation();
-  late String userName = '';
+  String? roomId = '';
+  RealTimeLocation? realTimeLocation;
+  String userName = '';
 
   //arrow variables
   double _arrowAngle = 90;
@@ -48,12 +47,7 @@ class _ARScreenState extends State<ARScreen> {
   void initState() {
     super.initState();
 
-    getRoom().then((_) {
-      realTimeLocation = RealTimeLocation();
-      realTimeLocation.connect();
-      realTimeLocation.joinRoom(roomId);
-      realTimeLocation.getDistanceBetweenUsers(updateDistance);
-    });
+    _initializeRealTimeLocation();
 
     _loadImageFromUrl();
 
@@ -62,7 +56,9 @@ class _ARScreenState extends State<ARScreen> {
         heading = event.heading;
       });
       _updateArrowAngle();
-      distanceOrBearinChanged() && _isCameraFacingCoordinates() ? _addImageNode() : () {};
+      if (distanceOrBearinChanged() && _isCameraFacingCoordinates()) {
+        _addImageNode();
+      }
     });
   }
 
@@ -70,7 +66,15 @@ class _ARScreenState extends State<ARScreen> {
     return distanceBetweenUsers > 0 || bearingChanged;
   }
 
-  Future<void> getRoom() async {
+  Future<void> _initializeRealTimeLocation() async {
+    await _getRoom();
+    realTimeLocation = RealTimeLocation();
+    realTimeLocation?.connect();
+    realTimeLocation?.joinRoom(roomId);
+    realTimeLocation?.getDistanceBetweenUsers(updateDistance);
+  }
+
+  Future<void> _getRoom() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     roomId = prefs.getString('room_id') ?? '';
     userName = prefs.getString('name_user') ?? '';
@@ -86,22 +90,15 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   void dispose() {
-    FlutterCompass.events?.listen((event) {}).cancel();
-    arCoreController.dispose();
-    realTimeLocation.disconnect();
-    Wakelock.disable();
+    arCoreController?.dispose();
+    realTimeLocation?.disconnect();
+    WakelockPlus.disable();
     super.dispose();
   }
 
   Visibility _getArrow() {
-    String imageName = 'assets/images/';
-    if (_arrowAngle.abs() > 20) {
-      imageName += 'arrow-red.png';
-    } else if (_arrowAngle.abs() > 5) {
-      imageName += 'arrow-yellow.png';
-    } else {
-      imageName += 'arrow-green.png';
-    }
+    final imageName = AppUtils.getArrowImagePath(_arrowAngle);
+    
     return Visibility(
       visible: distanceBetweenUsers > 0,
       child: Positioned(
@@ -111,7 +108,7 @@ class _ARScreenState extends State<ARScreen> {
         child: Align(
           alignment: Alignment.center,
           child: Transform.rotate(
-            angle: _arrowAngle * pi / 180,
+            angle: AppUtils.degreesToRadians(_arrowAngle),
             child: Image.asset(imageName, width: 150),
           ),
         ),
@@ -121,14 +118,8 @@ class _ARScreenState extends State<ARScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Wakelock.enable();
-    String formattedDistance;
-    if (distanceBetweenUsers > 1000) {
-      double distanceInKm = distanceBetweenUsers / 1000;
-      formattedDistance = '${distanceInKm.toStringAsFixed(2)} Km';
-    } else {
-      formattedDistance = '${distanceBetweenUsers.toStringAsFixed(2)} m';
-    }
+    WakelockPlus.enable();
+    final formattedDistance = AppUtils.formatDistance(distanceBetweenUsers);
     return Scaffold(
       appBar: AppBar(
         title: Text("${'finding'.i18n()} $userName"),
@@ -169,58 +160,54 @@ class _ARScreenState extends State<ARScreen> {
   }
 
   void _onArCoreViewCreated(ArCoreController controller) {
-    arCoreController = controller;    
+    arCoreController = controller;
   }
 
   void _updateArrowAngle() {
-    double arrowAngle = heading! - bearingBetweenUsers;
-
-    if (arrowAngle < 0) {
-      arrowAngle = arrowAngle.abs() / 180 * 90;
-    } else {
-      arrowAngle = -arrowAngle / 180 * 90;
-    }
+    if (heading == null) return;
+    
+    final arrowAngle = AppUtils.calculateArrowAngle(heading!, bearingBetweenUsers);
     setState(() {
       _arrowAngle = arrowAngle;
     });    
   }
 
   bool _isCameraFacingCoordinates() {
-    return _arrowAngle.abs() <= 10;
+    return AppUtils.isWithinThreshold(_arrowAngle, AppConstants.cameraFacingThreshold);
   }
 
   _loadImageFromUrl() async {
-    const IMG_SIZE = 512;
-    const String imageUrl =
-        'https://raw.githubusercontent.com/murosfc/murosfc.github.io/main/user-logo.png';
-    final response = await http.get(Uri.parse(imageUrl));
+    final response = await http.get(Uri.parse(AppConstants.defaultImageUrl));
     imageBytes = response.bodyBytes;
     avatar = ArCoreImage(
       bytes: imageBytes,
-      width: IMG_SIZE,
-      height: IMG_SIZE,
+      width: AppConstants.imageSize,
+      height: AppConstants.imageSize,
     );
   }
 
   double getMaxImageDistance() {
-    return distanceBetweenUsers > 10 ? 10 : distanceBetweenUsers;
+    return AppUtils.constrainDistance(distanceBetweenUsers, AppConstants.maxImageDistance);
   }
 
   void _addImageNode() async {
-    var NODE_NAME = 'user-logo';
     countArImage++;
-    if (countArImage > 1) {      
-      arCoreController.removeNode(nodeName: NODE_NAME);
+    
+    if (countArImage > 1) {
+      arCoreController?.removeNode(nodeName: AppConstants.userLogoNodeName);
     }
-    imageNode = ArCoreNode(
-      image: avatar,
-      position: vector.Vector3(0.0, 0.0, -getMaxImageDistance()),
-      rotation: vector.Vector4(0.0, 0, 0.0, 0),
-      scale: vector.Vector3(0.7, 0.7, 0.7),
-      name: NODE_NAME,
-    );
-    arCoreController.addArCoreNode(imageNode);
-    bearingChanged = false;
-    distanceChanged = false;
+    
+    if (avatar != null) {
+      imageNode = ArCoreNode(
+        image: avatar!,
+        position: vector.Vector3(0.0, 0.0, -getMaxImageDistance()),
+        rotation: vector.Vector4(0.0, 0, 0.0, 0),
+        scale: vector.Vector3(0.7, 0.7, 0.7),
+        name: AppConstants.userLogoNodeName,
+      );
+      arCoreController?.addArCoreNode(imageNode!);
+      bearingChanged = false;
+      distanceChanged = false;
+    }
   }
 }
